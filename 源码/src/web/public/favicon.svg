@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="ADC 牙科连锁">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="904" y2="960" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0a3032"/>
+      <stop offset="0.52" stop-color="#0d4b49"/>
+      <stop offset="1" stop-color="#127a70"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(760 188) rotate(132) scale(620)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8ce2cc" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#8ce2cc" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tooth" x1="420" y1="220" x2="612" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset="0.6" stop-color="#e9fff8"/>
+      <stop offset="1" stop-color="#bdeee1"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="690" y1="220" x2="800" y2="330" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffe2a4"/>
+      <stop offset="1" stop-color="#d69a3f"/>
+    </linearGradient>
+    <filter id="shadow" x="180" y="160" width="680" height="720" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="28" stdDeviation="30" flood-color="#001f1e" flood-opacity=".35"/>
+    </filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="224" fill="url(#glow)"/>
+  <rect x="30" y="30" width="964" height="964" rx="202" fill="none" stroke="#ffffff" stroke-opacity=".09" stroke-width="2"/>
+
+  <ellipse cx="512" cy="798" rx="190" ry="30" fill="#001b1a" opacity=".22" filter="url(#soft)"/>
+
+  <g filter="url(#shadow)">
+    <path d="M512 248
+      C 438 200 326 220 302 328
+      C 286 410 318 486 342 576
+      C 362 650 376 782 432 782
+      C 484 782 478 674 512 674
+      C 546 674 540 782 592 782
+      C 648 782 662 650 682 576
+      C 706 486 738 410 722 328
+      C 698 220 586 200 512 248 Z"
+      fill="url(#tooth)"/>
+  </g>
+
+  <path d="M512 282
+    C 456 242 366 248 336 316
+    C 320 354 326 402 340 446"
+    fill="none" stroke="#ffffff" stroke-opacity=".72" stroke-width="10" stroke-linecap="round"/>
+
+  <path d="M412 716
+    C 424 744 442 754 458 748
+    C 476 742 482 708 490 676"
+    fill="none" stroke="#8bd9c9" stroke-opacity=".35" stroke-width="8" stroke-linecap="round"/>
+
+  <path d="M760 218
+    L775 259
+    L816 274
+    L775 289
+    L760 330
+    L745 289
+    L704 274
+    L745 259 Z"
+    fill="url(#gold)"/>
+  <circle cx="806" cy="338" r="9" fill="#f4c77a" opacity=".9"/>
+  <circle cx="704" cy="346" r="5" fill="#bdeee1" opacity=".65"/>
+
+  <path d="M258 690
+    C 300 742 354 776 416 794"
+    fill="none" stroke="#9de7d6" stroke-opacity=".28" stroke-width="7" stroke-linecap="round"/>
+  <path d="M766 690
+    C 724 742 670 776 608 794"
+    fill="none" stroke="#9de7d6" stroke-opacity=".18" stroke-width="7" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,6 @@
+{
+  "desc": "ADC 牙科连锁患者与员工服务",
+  "rules": [
+    { "action": "allow", "page": "*" }
+  ]
+}

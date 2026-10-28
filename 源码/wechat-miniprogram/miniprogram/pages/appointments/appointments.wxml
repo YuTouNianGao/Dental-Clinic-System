@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="hero">
+    <view class="eyebrow">MY APPOINTMENTS</view><view class="title">我的预约</view>
+    <view class="subtitle">支付成功后预约才正式确认；取消规则以预约开始前 24 小时为界。</view>
+    <button class="btn secondary" bindtap="goBooking" style="margin-top:18rpx">新建预约</button>
+  </view>
+  <view class="chip-row">
+    <view wx:for="{{filters}}" wx:key="key" class="chip {{filter === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="setFilter">{{item.label}}</view>
+  </view>
+  <view wx:if="{{loading}}" class="empty">正在加载…</view>
+  <view wx:elif="{{error}}" class="card"><view class="notice">{{error}}</view><button class="btn secondary" bindtap="load">重试</button></view>
+  <view wx:elif="{{!items.length}}" class="card"><view class="empty">该分类下暂无预约</view></view>
+  <view wx:for="{{items}}" wx:key="id" class="card appt-card" data-id="{{item.id}}" bindtap="openDetail">
+    <view class="row">
+      <view><view class="appt-date">{{item.timeLabel}}</view><view class="appt-clinic">{{item.clinicName}} · {{item.dentistName}}</view></view>
+      <view class="badge">{{item.statusLabel}}</view>
+    </view>
+    <view class="divider"></view>
+    <view class="row"><view class="small">预约号：{{item.no}}</view><view class="small">{{item.expectedTreatment || ''}}</view></view>
+    <view class="pill-row" style="margin-top:16rpx">
+      <button wx:if="{{item.status === 'PENDING_PAYMENT' && item.depositOrderId}}" class="btn small" data-id="{{item.id}}" catchtap="pay">支付预约金</button>
+      <button wx:if="{{item.status === 'PENDING_PAYMENT' || item.status === 'SCHEDULED'}}" class="btn small danger" data-id="{{item.id}}" catchtap="cancel">取消预约</button>
+    </view>
+  </view>
+</view>

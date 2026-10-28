@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+coverage/
+database/mysql-data/
+artifacts/
+wechat-miniprogram/preview-qr.jpg
+wechat-miniprogram/preview.json
+wechat-miniprogram/upload.json
+docs/final-report/build/
+docs/final-report/source/main.pdf
+
+docs/final-report/source/main.aux
+docs/final-report/source/main.out
+docs/final-report/source/main.toc

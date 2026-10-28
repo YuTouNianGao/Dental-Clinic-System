@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="hero"><view class="eyebrow">OUR CLINICS</view><view class="title">诊所与牙医</view><view class="subtitle">ADC 牙科连锁门店信息、预约金与出诊牙医。</view><button class="btn secondary" bindtap="goBooking" style="margin-top:18rpx">选择时段预约</button></view>
+  <view wx:if="{{loading}}" class="empty">正在加载…</view>
+  <view wx:elif="{{error}}" class="card"><view class="notice">{{error}}</view><button class="btn secondary" bindtap="load">重试</button></view>
+  <view wx:elif="{{!clinics.length}}" class="card"><view class="empty">暂无诊所信息</view></view>
+  <view wx:for="{{clinics}}" wx:key="id" class="card">
+    <view class="row"><view><view style="font-size:32rpx;font-weight:700">{{item.name}}</view><view class="small">{{item.clinicNo}}</view></view><view class="badge {{item.patientBookingEnabled ? '' : 'gray'}}">{{item.patientBookingEnabled ? '可预约' : '暂停自助'}}</view></view>
+    <view class="divider"></view>
+    <view class="info-row"><view class="info-label">地址</view><view class="info-value">{{item.address}}</view></view>
+    <view class="info-row"><view class="info-label">电话</view><view class="info-value">{{item.phone}}</view></view>
+    <view class="info-row"><view class="info-label">预约金</view><view class="info-value">{{item.deposit}} 元</view></view>
+  </view>
+  <view class="section-head"><view class="section-title">牙医团队</view><view class="small">{{dentists.length}} 位</view></view>
+  <view wx:if="{{!dentists.length}}" class="card"><view class="empty">暂无牙医信息</view></view>
+  <view wx:for="{{dentists}}" wx:key="_id" class="card">
+    <view class="row"><view class="row" style="gap:16rpx"><view class="avatar">{{item.initial}}</view><view><view style="font-size:29rpx;font-weight:700">{{item.name}}</view><view class="small">{{item.title}} · {{item.qualificationNames}}</view><view class="small">{{item.clinicName}}</view></view></view><view class="badge">{{item.status}}</view></view>
+  </view>
+</view>

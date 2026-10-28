@@ -1,0 +1,78 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="empty">正在加载…</view>
+  <view wx:elif="{{error}}" class="card">
+    <view class="notice">{{error}}</view>
+    <button class="btn secondary" bindtap="load" style="margin-top:20rpx">重试</button>
+  </view>
+  <block wx:else>
+    <view class="hero">
+      <view class="hero-top">
+        <view class="hero-brand"><view class="hero-seal">AD</view><view>ADC DENTAL</view></view>
+      </view>
+      <view class="eyebrow">PATIENT CARE</view>
+      <view class="title">把每一次看牙，安排得从容一点。</view>
+      <view class="subtitle">{{patient.name || user.displayName}}，欢迎回来。预约、支付和就诊记录都在这里。</view>
+      <view class="hero-actions">
+        <button class="btn secondary" bindtap="goBooking">预约挂号</button>
+        <button class="btn ghost" bindtap="goAppointments">我的预约</button>
+      </view>
+      <view class="hero-stats">
+        <view class="hero-stat"><view class="num">{{home.upcomingCount}}</view><view class="label">待就诊</view></view>
+        <view class="hero-stat"><view class="num">{{home.pendingOrders.length}}</view><view class="label">待支付</view></view>
+        <view class="hero-stat"><view class="num">{{home.unreadCount}}</view><view class="label">未读通知</view></view>
+      </view>
+    </view>
+
+    <view class="quick-grid">
+      <view class="quick-item" bindtap="goBooking"><view class="quick-symbol">约</view><view class="quick-label">预约</view></view>
+      <view class="quick-item" bindtap="goPayments"><view class="quick-symbol">付</view><view class="quick-label">支付</view></view>
+      <view class="quick-item" bindtap="goRecords"><view class="quick-symbol">历</view><view class="quick-label">记录</view></view>
+      <view class="quick-item" bindtap="goNotifications"><view class="quick-symbol">信</view><view class="quick-label">通知</view></view>
+    </view>
+
+    <view class="section-head"><view class="section-title">下一次就诊</view><view class="section-link" bindtap="goAppointments">全部预约</view></view>
+    <view wx:if="{{!home.nextAppointment}}" class="card"><view class="empty">还没有预约。选一个合适的时段，给自己留一点照顾牙齿的时间。</view><button class="btn secondary" bindtap="goBooking" style="margin-top:8rpx">去预约</button></view>
+    <view wx:if="{{home.nextAppointment}}" class="card next-card" data-id="{{home.nextAppointment.id}}" bindtap="goDetail">
+      <view class="date-tile"><view class="date-month">{{home.nextAppointment.dateBadge}}</view><view class="date-week">{{home.nextAppointment.weekday}}</view></view>
+      <view class="next-info">
+        <view class="next-title">{{home.nextAppointment.clinicName}}</view>
+        <view class="small">{{home.nextAppointment.dentistName}} · {{home.nextAppointment.departmentName || '综合口腔科'}}</view>
+        <view class="next-time">{{home.nextAppointment.timeLabel}}</view>
+        <view class="small">{{home.nextAppointment.expectedTreatment || '口腔检查'}}</view>
+      </view>
+      <view class="badge {{home.nextAppointment.status === 'PENDING_PAYMENT' ? 'amber' : ''}}">{{home.nextAppointment.statusLabel}}</view>
+    </view>
+
+    <view class="section-head"><view class="section-title">待处理</view><view class="section-link" bindtap="goPayments">支付订单</view></view>
+    <view class="card">
+      <view wx:if="{{!home.pendingOrders.length}}" class="empty">没有待支付账单，保持得很好。</view>
+      <view wx:for="{{home.pendingOrders}}" wx:key="id" class="list-item">
+        <view class="row"><view><view style="font-weight:700">{{item.type === 'APPOINTMENT_DEPOSIT' ? '预约金' : '诊后余额'}} {{item.amountLabel}}</view><view class="small">{{item.no}} · {{item.statusLabel}}</view></view><button class="btn small" data-id="{{item.id}}" bindtap="goPayments">去支付</button></view>
+      </view>
+    </view>
+
+    <view class="section-head"><view class="section-title">近期就诊</view><view class="section-link" bindtap="goRecords">就诊记录</view></view>
+    <view class="card">
+      <view wx:if="{{!home.visits.length}}" class="empty">暂无就诊记录</view>
+      <view wx:for="{{home.visits}}" wx:key="_id" class="list-item"><view class="row"><view><view style="font-weight:700">{{item.visitDate}} · {{item.dentistName}}</view><view class="small">{{item.clinicName}} · {{item.treatmentName}}</view></view><view class="small">{{item.status}}</view></view></view>
+    </view>
+
+    <view class="card care-card">
+      <view class="eyebrow">CARE NOTE</view>
+      <view class="care-title">看牙前，给自己留三件小事</view>
+      <view class="tip-row"><view class="tip-index">01</view><view>带上既往检查资料和正在服用的药物清单。</view></view>
+      <view class="tip-row"><view class="tip-index">02</view><view>提前 10 分钟到店，留出前台登记和拍片时间。</view></view>
+      <view class="tip-row"><view class="tip-index">03</view><view>如需改期，请尽量在预约开始前 24 小时操作。</view></view>
+    </view>
+
+    <view class="card">
+      <view class="row"><view class="section-title">账户服务</view><view class="section-link" bindtap="goBinding">绑定档案</view></view>
+      <view class="grid2" style="margin-top:16rpx">
+        <button class="btn secondary" bindtap="goRefunds">退款记录</button>
+        <button class="btn secondary" bindtap="goNotifications">站内通知</button>
+        <button class="btn secondary" bindtap="goClinics">诊所与牙医</button>
+        <button class="btn secondary" bindtap="goBinding">绑定已有档案</button>
+      </view>
+    </view>
+  </block>
+</view>

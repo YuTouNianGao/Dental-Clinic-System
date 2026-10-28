@@ -1,0 +1,41 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="empty">正在加载…</view>
+  <view wx:elif="{{error}}" class="card"><view class="notice">{{error}}</view><button class="btn secondary" bindtap="load">重试</button></view>
+  <block wx:else>
+    <view class="hero">
+      <view class="eyebrow">APPOINTMENT DETAIL</view>
+      <view class="title">{{detail.appointment.clinicName}}</view>
+      <view class="subtitle">{{detail.appointment.timeLabel}} · {{detail.appointment.dentistName}}</view>
+      <view class="row" style="margin-top:20rpx"><view class="badge">{{detail.appointment.statusLabel}}</view><view class="small" style="color:#c7e6df">{{detail.appointment.no}}</view></view>
+    </view>
+    <view class="card">
+      <view class="eyebrow">VISIT INFO</view>
+      <view class="info-row"><view class="info-label">患者</view><view class="info-value">{{detail.appointment.patientName}}</view></view>
+      <view class="info-row"><view class="info-label">科室</view><view class="info-value">{{detail.appointment.departmentName || '综合口腔科'}}</view></view>
+      <view class="info-row"><view class="info-label">牙椅</view><view class="info-value">{{detail.appointment.chairNo || '待分配'}}</view></view>
+      <view class="info-row"><view class="info-label">就诊需求</view><view class="info-value">{{detail.appointment.expectedTreatment || '口腔检查'}}</view></view>
+      <view class="info-row"><view class="info-label">预约渠道</view><view class="info-value">{{detail.appointment.channel === 'PATIENT_SELF_SERVICE' ? '患者自助预约' : '员工预约'}}</view></view>
+      <view wx:if="{{detail.appointment.holdExpiresAt}}" class="info-row"><view class="info-label">支付截止</view><view class="info-value">{{detail.appointment.holdExpiresAt}}</view></view>
+    </view>
+    <view wx:if="{{order}}" class="card">
+      <view class="row"><view class="eyebrow">PAYMENT</view><view class="badge {{order.status === 'PAID' ? '' : 'amber'}}">{{order.statusLabel}}</view></view>
+      <view class="amount" style="margin-top:12rpx">{{order.amountLabel}}<small>{{order.type === 'APPOINTMENT_DEPOSIT' ? '预约金' : '诊后余额'}}</small></view>
+      <view class="small" style="margin-top:6rpx">{{order.no}} · {{order.timeLabel}}</view>
+      <button wx:if="{{order.status === 'PENDING_PAYMENT' || order.status === 'PARTIALLY_PAID'}}" class="btn" style="margin-top:18rpx" bindtap="pay">模拟支付</button>
+    </view>
+    <view wx:if="{{changes.length}}" class="card">
+      <view class="eyebrow">CHANGE LOG</view>
+      <view class="timeline" style="margin-top:18rpx">
+        <view wx:for="{{changes}}" wx:key="_id" class="timeline-item"><view class="timeline-dot"></view><view class="timeline-title">{{item.typeLabel}} · {{item.initiator}}</view><view class="timeline-text">{{item.reason || '无备注'}} · {{item.timeLabel}}</view></view>
+      </view>
+    </view>
+    <view class="card">
+      <view class="eyebrow">ACTIONS</view>
+      <view class="pill-row" style="margin-top:16rpx">
+        <button wx:if="{{detail.appointment.status === 'PENDING_PAYMENT' || detail.appointment.status === 'SCHEDULED'}}" class="btn danger" bindtap="cancel">取消预约</button>
+        <button class="btn secondary" bindtap="goBooking">重新预约</button>
+      </view>
+      <view class="form-hint">取消规则：预约开始前 24 小时以上可申请退款；不足 24 小时或未到诊，预约金按规则没收。</view>
+    </view>
+  </block>
+</view>

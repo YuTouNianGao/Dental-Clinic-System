@@ -1,0 +1,13 @@
+<view class="page">
+  <view class="hero"><view class="eyebrow">PAYMENTS</view><view class="title">支付订单</view><view class="subtitle">预约金和诊后余额使用模拟支付；模拟结果不代表真实资金到账。</view></view>
+  <view wx:if="{{!loading}}" class="card"><view class="row"><view class="small">需要查看退款审核进度？</view><button class="btn small secondary" bindtap="goRefunds">退款记录</button></view></view>
+  <view wx:if="{{loading}}" class="empty">正在加载…</view>
+  <view wx:elif="{{error}}" class="card"><view class="notice">{{error}}</view><button class="btn secondary" bindtap="load">重试</button></view>
+  <view wx:elif="{{!items.length}}" class="card"><view class="empty">暂无支付订单</view></view>
+  <view wx:for="{{items}}" wx:key="id" class="card">
+    <view class="row"><view><view style="font-size:30rpx;font-weight:700">{{item.typeLabel}} {{item.amountLabel}}</view><view class="small">{{item.no}} · {{item.timeLabel}}</view></view><view class="badge">{{item.statusLabel}}</view></view>
+    <view class="pill-row" style="margin-top:14rpx">
+      <button wx:if="{{item.status === 'PENDING_PAYMENT' || item.status === 'PARTIALLY_PAID'}}" class="btn small" data-index="{{index}}" bindtap="pay">模拟支付</button>
+    </view>
+  </view>
+</view>

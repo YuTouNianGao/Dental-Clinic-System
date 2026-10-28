@@ -1,0 +1,52 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="empty">正在加载…</view>
+  <block wx:else>
+    <view class="hero"><view class="eyebrow">APPOINTMENT</view><view class="title">预约挂号</view><view class="subtitle">按诊所、科室、医生、日期和时间段完成预约，预约金支付后正式确认。</view></view>
+    <view wx:if="{{error}}" class="notice">{{error}}</view>
+
+    <view class="card">
+      <view class="step-head"><view class="step-no">01</view><view><view class="section-title">选择诊所</view><view class="small">{{clinics[clinicIndex].address}}</view></view></view>
+      <picker mode="selector" range="{{clinics}}" range-key="name" value="{{clinicIndex}}" bindchange="clinicChange">
+        <view class="select-card"><view><view class="select-title">{{clinics[clinicIndex].name}}</view><view class="small">{{clinics[clinicIndex].clinicNo}} · 预约金 {{clinics[clinicIndex].deposit}} 元</view></view><view class="select-arrow">›</view></view>
+      </picker>
+    </view>
+
+    <view class="card">
+      <view class="step-head"><view class="step-no">02</view><view><view class="section-title">选择科室</view><view class="small">根据就诊需求选择科室</view></view></view>
+      <view class="dept-grid">
+        <view wx:for="{{departments}}" wx:key="id" class="dept-card {{departmentIndex === index ? 'active' : ''}}" data-index="{{index}}" bindtap="selectDepartment">
+          <view class="dept-short">{{item.short}}</view>
+          <view class="dept-name">{{item.name}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="step-head"><view class="step-no">03</view><view><view class="section-title">选择医生</view><view class="small">当前科室出诊医生</view></view></view>
+      <view wx:if="{{!dentists.length}}" class="empty">该科室当前诊所暂无出诊医生，请更换科室或诊所。</view>
+      <view wx:for="{{dentists}}" wx:key="id" class="doctor-card {{dentistIndex === index ? 'active' : ''}}" data-index="{{index}}" bindtap="selectDoctor">
+        <view class="avatar">{{item.initial}}</view>
+        <view style="flex:1"><view class="doctor-name">{{item.name}} <text class="doctor-title">{{item.title}}</text></view><view class="small">{{item.qualificationNames}}</view></view>
+        <view class="doctor-check">{{dentistIndex === index ? '✓' : ''}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="step-head"><view class="step-no">04</view><view><view class="section-title">选择时间</view><view class="small">{{date}}</view></view></view>
+      <scroll-view scroll-x class="date-strip">
+        <view wx:for="{{dates}}" wx:key="date" class="date-chip {{date === item.date ? 'active' : ''}}" data-date="{{item.date}}" bindtap="selectDate"><text class="week">{{item.week}}</text><text class="day">{{item.day}}</text></view>
+      </scroll-view>
+      <view wx:if="{{!slots.length}}" class="empty">{{dentists.length ? '当日暂无可约时段，请更换日期' : '请先选择医生'}}</view>
+      <view wx:else class="slot-grid">
+        <view wx:for="{{slots}}" wx:key="scheduleId+startMinute" class="slot {{selectedIndex === index ? 'active' : ''}}" data-index="{{index}}" bindtap="selectSlot"><view class="slot-time">{{item.label}}</view><view class="slot-end">{{item.endLabel}}</view></view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="field"><view class="field-label">就诊需求</view><input class="input" value="{{expectedTreatment}}" bindinput="inputTreatment" placeholder="例如：牙痛、洁牙、正畸咨询" /></view>
+      <view class="notice" wx:if="{{!clinics[clinicIndex].patientBookingEnabled}}">该诊所暂未开放患者自助预约。</view>
+      <button class="btn" style="margin-top:12rpx" loading="{{saving}}" bindtap="submit" disabled="{{!clinics[clinicIndex].patientBookingEnabled || !dentists.length}}">确认预约</button>
+      <view class="form-hint">提交后保留 15 分钟，请在支付页完成预约金支付。</view>
+    </view>
+  </block>
+</view>

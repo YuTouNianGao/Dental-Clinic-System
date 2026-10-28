@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/register/register",
+    "pages/home/home",
+    "pages/booking/booking",
+    "pages/clinics/clinics",
+    "pages/appointments/appointments",
+    "pages/appointments/detail",
+    "pages/payments/payments",
+    "pages/refunds/refunds",
+    "pages/records/records",
+    "pages/profile/profile",
+    "pages/binding/binding",
+    "pages/notifications/notifications"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#0b3b38",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "ADC 牙科连锁",
+    "backgroundColor": "#f6f2ea",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#8b9b96",
+    "selectedColor": "#0f6b66",
+    "backgroundColor": "#fffdf9",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/home/home", "text": "首页", "iconPath": "images/tab-home.png", "selectedIconPath": "images/tab-home-active.png" },
+      { "pagePath": "pages/appointments/appointments", "text": "预约", "iconPath": "images/tab-calendar.png", "selectedIconPath": "images/tab-calendar-active.png" },
+      { "pagePath": "pages/records/records", "text": "记录", "iconPath": "images/tab-records.png", "selectedIconPath": "images/tab-records-active.png" },
+      { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "images/tab-profile.png", "selectedIconPath": "images/tab-profile-active.png" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

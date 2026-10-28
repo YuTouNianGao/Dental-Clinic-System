@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="hero"><view class="eyebrow">MEDICAL & BILLING</view><view class="title">就诊与账单</view><view class="subtitle">仅 ACTIVE 结算计入有效账单；VOID 结算保留历史记录。</view></view>
+  <view wx:if="{{loading}}" class="empty">正在加载…</view>
+  <view wx:elif="{{error}}" class="card"><view class="notice">{{error}}</view><button class="btn secondary" bindtap="load">重试</button></view>
+  <block wx:else>
+    <view class="card">
+      <view class="eyebrow">VISITS</view>
+      <view wx:if="{{!visits.length}}" class="empty">暂无就诊记录</view>
+      <view wx:for="{{visits}}" wx:key="_id" class="list-item"><view class="row"><view><view style="font-weight:700">{{item.visitDate}} · {{item.dentistName}}</view><view class="small">{{item.clinicName}} · {{item.problem}}</view><view class="small">{{item.treatmentName}} · {{item.amountLabel}}</view></view><view class="badge">{{item.statusLabel}}</view></view></view>
+    </view>
+    <view class="card">
+      <view class="eyebrow">SETTLEMENTS</view>
+      <view wx:if="{{!settlements.length}}" class="empty">暂无结算记录</view>
+      <view wx:for="{{settlements}}" wx:key="_id" class="list-item"><view class="row"><view><view style="font-weight:700">{{item.settlementNo}} · {{item.amountLabel}}</view><view class="small">{{item.timeLabel}}</view></view><view class="badge {{item.status === 'VOID' ? 'red' : ''}}">{{item.statusLabel}}</view></view></view>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="login-brand-block" style="padding-top:24rpx">
+    <image class="brand-image" src="/images/brand.png" mode="aspectFill" />
+    <view class="login-brand-name">患者注册</view>
+    <view class="login-desc">填写基本资料并设置密码，提交后系统自动分配患者账号。</view>
+  </view>
+  <view wx:if="{{error}}" class="notice" style="margin-bottom:16rpx">{{error}}</view>
+  <view class="card">
+    <view class="field"><view class="field-label">姓名</view><input class="input" value="{{name}}" data-field="name" bindinput="input" placeholder="请输入真实姓名" /></view>
+    <view class="field"><view class="field-label">性别</view><picker mode="selector" range="{{genders}}" value="{{genderIndex}}" bindchange="genderChange"><view class="input">{{genders[genderIndex]}}</view></picker></view>
+    <view class="field"><view class="field-label">年龄</view><input class="input" type="number" value="{{age}}" data-field="age" bindinput="input" placeholder="请输入年龄" /></view>
+    <view class="field"><view class="field-label">手机号</view><input class="input" type="number" value="{{phone}}" data-field="phone" bindinput="input" placeholder="用于就诊联系" /></view>
+    <view class="field"><view class="field-label">设置密码</view><input class="input" password value="{{password}}" data-field="password" bindinput="input" placeholder="至少 6 位" /></view>
+    <view class="field"><view class="field-label">确认密码</view><input class="input" password value="{{confirm}}" data-field="confirm" bindinput="input" placeholder="再次输入密码" /></view>
+    <button class="btn" loading="{{loading}}" bindtap="submit">提交注册</button>
+    <view class="form-hint">注册成功后系统会分配一个患者账号，例如 P12345678。请妥善保存，后续使用账号和密码登录。</view>
+  </view>
+</view>
