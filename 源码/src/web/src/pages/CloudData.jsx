@@ -16,6 +16,7 @@ export default function CloudData() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [updating, setUpdating] = useState('');
   const load = async (force = false) => {
     setLoading(true); setError(null);
     try {
@@ -35,6 +36,15 @@ export default function CloudData() {
     } catch (e) { notify(e.message, 'error'); }
     finally { setSyncing(false); }
   };
+  const updateAppointment = async (appointment, status) => {
+    setUpdating(appointment.id);
+    try {
+      await api(`/cloud-data/appointments/${appointment.id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+      notify(status === 'CANCELLED' ? '小程序预约已取消' : '小程序预约状态已更新');
+      await load(true);
+    } catch (e) { notify(e.message, 'error'); }
+    finally { setUpdating(''); }
+  };
   return <div>
     <PageHeader eyebrow="CLOUDBASE / MINI PROGRAM" title="小程序云数据" description="读取小程序云数据，并把 Web 端医生排班同步到小程序；员工可在这里核对两端数据。" actions={<><Button variant="secondary" onClick={syncSchedules} disabled={syncing}><CalendarDays size={15} />{syncing ? '同步中…' : '同步排班到小程序'}</Button><Button onClick={() => load(true)} disabled={loading}><RefreshCw size={15} />刷新云数据</Button></>} />
     {loading && !data ? <Loading /> : error ? <ErrorState error={error} onRetry={() => load(true)} /> : data && <>
@@ -52,7 +62,7 @@ export default function CloudData() {
         </Card>
         <Card>
           <div className="card-head"><div><h2>小程序预约</h2><p>含待支付、已确认和已取消</p></div><Badge tone="blue">{data.appointments.length}</Badge></div>
-          {!data.appointments.length ? <Empty title="暂无小程序预约" /> : <div className="cloud-list">{data.appointments.slice(0, 12).map((a) => <div className="cloud-row" key={a.id}><div><strong>{a.patientName} · {a.date}</strong><small>{a.clinicName} · {a.dentistName} · {a.appointmentNo}</small></div><Badge value={a.status}>{STATUS[a.status] || a.status}</Badge></div>)}</div>}
+          {!data.appointments.length ? <Empty title="暂无小程序预约" /> : <div className="cloud-list">{data.appointments.slice(0, 12).map((a) => <div className="cloud-row" key={a.id}><div><strong>{a.patientName} · {a.date}</strong><small>{a.clinicName} · {a.dentistName} · {a.appointmentNo}</small></div><Badge value={a.status}>{STATUS[a.status] || a.status}</Badge>{a.status === 'SCHEDULED' && <div className="cloud-actions"><button disabled={updating === a.id} onClick={() => updateAppointment(a, 'ATTENDED')}>到诊</button><button disabled={updating === a.id} onClick={() => updateAppointment(a, 'CANCELLED')}>取消</button></div>}</div>)}</div>}
         </Card>
         <Card>
           <div className="card-head"><div><h2>小程序支付</h2><p>预约金 / 诊后余额</p></div><Badge tone="blue">{data.orders.length}</Badge></div>

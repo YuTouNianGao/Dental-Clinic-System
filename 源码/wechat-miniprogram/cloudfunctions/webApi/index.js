@@ -128,6 +128,14 @@ exports.main = async (event = {}) => {
       const stats = await syncSchedules(body.items || []);
       return reply(200, { ok: true, data: stats });
     }
+    if (action === 'updateAppointmentStatus') {
+      const allowed = ['SCHEDULED', 'CANCELLED', 'ATTENDED', 'NO_SHOW'];
+      if (!body.id || !allowed.includes(body.status)) return reply(400, { ok: false, message: 'invalid appointment status' });
+      const doc = await db.collection('appointments').doc(body.id).get();
+      if (!doc.data) return reply(404, { ok: false, message: 'appointment not found' });
+      await db.collection('appointments').doc(body.id).update({ data: { status: body.status, updatedAt: new Date() } });
+      return reply(200, { ok: true, data: { id: body.id, status: body.status } });
+    }
     if (action === 'counts') {
       const data = {};
       for (const name of COLLECTIONS) {
