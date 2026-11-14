@@ -73,6 +73,42 @@ router.put('/profile', asyncHandler(async (req, res) => {
   res.json({ ok: true });
 }));
 
+router.get('/clinical', asyncHandler(async (req, res) => {
+  const patientId = requireActive(req);
+  const [plans, teeth, recalls] = await Promise.all([
+    query(
+      `SELECT tp.*, c.clinic_no, u.display_name AS dentist_name,
+              COALESCE(s.item_count, 0) AS item_count,
+              COALESCE(s.completed_count, 0) AS completed_count,
+              COALESCE(s.total_amount, 0) AS total_amount
+         FROM treatment_plan tp
+         JOIN clinic c ON c.clinic_id = tp.clinic_id
+         JOIN dentist_profile d ON d.dentist_id = tp.dentist_id
+         JOIN user_account u ON u.user_id = d.user_id
+         LEFT JOIN (
+           SELECT plan_id, COUNT(*) AS item_count,
+                  SUM(status = 'COMPLETED') AS completed_count,
+                  SUM(subtotal) AS total_amount
+             FROM treatment_plan_item GROUP BY plan_id
+         ) s ON s.plan_id = tp.plan_id
+        WHERE tp.patient_id = ? AND tp.status IN ('PRESENTED','ACCEPTED','IN_PROGRESS','COMPLETED')
+        ORDER BY tp.updated_at DESC`,
+      [patientId]
+    ),
+    query('SELECT tooth_no, condition_code, surface, note, updated_at FROM tooth_record WHERE patient_id = ? ORDER BY tooth_no', [patientId]),
+    query('SELECT recall_id, recall_type, due_date, status, note FROM patient_recall WHERE patient_id = ? ORDER BY due_date', [patientId])
+  ]);
+  const planIds = plans.map((p) => p.plan_id);
+  const items = planIds.length ? await query(
+    `SELECT tpi.*, ti.treatment_name FROM treatment_plan_item tpi
+       JOIN treatment_item ti ON ti.treatment_item_id = tpi.treatment_item_id
+      WHERE tpi.plan_id IN (${planIds.map(() => '?').join(',')})
+      ORDER BY tpi.sequence_no, tpi.item_id`,
+    planIds
+  ) : [];
+  res.json({ plans: plans.map((p) => ({ ...p, items: items.filter((i) => i.plan_id === p.plan_id) })), teeth, recalls });
+}));
+
 router.get('/home', asyncHandler(async (req, res) => {
   const patientId = requireActive(req);
   const patientRows = await query('SELECT patient_id, patient_no, patient_name, phone, email FROM patient WHERE patient_id=?', [patientId]);

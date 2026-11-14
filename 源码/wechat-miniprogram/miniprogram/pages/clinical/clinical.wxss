@@ -1,0 +1,36 @@
+.clinical-hero .title{font-size:46rpx}
+.segmented{display:flex;background:#fffdf9;border:1rpx solid #e7e0d3;border-radius:16rpx;padding:6rpx;margin-bottom:20rpx}
+.segment{flex:1;text-align:center;padding:16rpx 8rpx;border-radius:12rpx;color:#7f8d87;font-size:24rpx;font-weight:600}
+.segment.active{background:#0b4f48;color:#fff;box-shadow:0 6rpx 14rpx rgba(11,79,72,.18)}
+.plan-card{margin-bottom:18rpx}
+.plan-head{flex:1;min-width:0}
+.plan-badge{display:inline-block;background:#f6efe2;color:#8c6428;border-radius:99rpx;padding:4rpx 14rpx;font-size:18rpx;font-weight:700;margin-bottom:8rpx}
+.plan-title{font-size:30rpx;font-weight:700;letter-spacing:-.5rpx}
+.plan-total{font-size:30rpx;font-weight:800;color:#0b4f48;white-space:nowrap;margin-left:16rpx}
+.plan-track{height:8rpx;background:#edf1ed;border-radius:99rpx;margin:18rpx 0 8rpx;overflow:hidden}
+.plan-fill{height:100%;background:#67ad98;border-radius:99rpx}
+.plan-items{margin-top:14rpx;border-top:1rpx solid #eef0ed}
+.plan-line{display:flex;justify-content:space-between;gap:16rpx;padding:16rpx 0;border-bottom:1rpx solid #f1f2ee}
+.plan-line:last-child{border-bottom:0}
+.plan-line-name{font-size:25rpx;font-weight:600}
+.plan-line-right{text-align:right;white-space:nowrap}
+.plan-state{font-size:19rpx;color:#0e6b60;margin-top:4rpx}
+.plan-note{font-size:21rpx;color:#7e8c86;line-height:1.65;background:#f8f6ef;border-radius:12rpx;padding:14rpx 18rpx;margin-top:14rpx}
+.tooth-block{padding:18rpx 0 8rpx;overflow-x:auto}
+.tooth-label{font-size:19rpx;color:#9aa39e;margin:10rpx 0 8rpx}
+.tooth-row{display:flex;gap:6rpx;min-width:760rpx}
+.tooth-chip{width:42rpx;flex:none;border:1rpx solid #e2e6e2;border-radius:8rpx;padding:7rpx 0;display:flex;flex-direction:column;align-items:center;gap:7rpx;background:#fff}
+.tooth-no{font-size:16rpx;color:#7d8881}
+.tooth-dot{width:18rpx;height:18rpx;border-radius:5rpx;background:#dcebe4}
+.tooth-caries .tooth-dot{background:#e7a08b}.tooth-filling .tooth-dot{background:#8fb8d6}.tooth-crown .tooth-dot{background:#d4b06a}.tooth-root .tooth-dot{background:#bc8dc9}.tooth-implant .tooth-dot{background:#6fa99b}.tooth-missing .tooth-dot{background:#d9d8d3}.tooth-fracture .tooth-dot{background:#d97965}.tooth-sensitive .tooth-dot{background:#e7c96e}.tooth-healthy .tooth-dot{background:#dcebe4}
+.tooth-legend{display:flex;flex-wrap:wrap;gap:10rpx 18rpx;padding-top:14rpx;border-top:1rpx solid #eef0ed}
+.legend-item{display:flex;align-items:center;gap:6rpx;font-size:19rpx;color:#818d87}
+.legend-dot{width:12rpx;height:12rpx;border-radius:3rpx;background:#dcebe4}
+.legend-dot.tooth-caries{background:#e7a08b}.legend-dot.tooth-filling{background:#8fb8d6}.legend-dot.tooth-crown{background:#d4b06a}.legend-dot.tooth-root{background:#bc8dc9}.legend-dot.tooth-implant{background:#6fa99b}.legend-dot.tooth-missing{background:#d9d8d3}.legend-dot.tooth-fracture{background:#d97965}.legend-dot.tooth-sensitive{background:#e7c96e}.legend-dot.tooth-healthy{background:#dcebe4}
+.recall-card{display:flex;align-items:center;gap:16rpx;margin-bottom:14rpx}
+.recall-mark{width:12rpx;height:56rpx;border-radius:99rpx;background:#cbd8d2;flex:none}
+.recall-mark.due{background:#d9876f}
+.recall-main{flex:1}
+.recall-title{font-size:27rpx;font-weight:700}
+.clinical-help{display:flex;align-items:center;gap:16rpx;margin-top:18rpx}
+.clinical-help>view{flex:1}

@@ -24,6 +24,7 @@ import settlementRoutes from './routes/settlements.js';
 import costRoutes from './routes/costs.js';
 import performanceRoutes from './routes/performance.js';
 import auditRoutes from './routes/audit.js';
+import clinicalRoutes from './routes/clinical.js';
 
 export const app = express();
 app.disable('x-powered-by');
@@ -52,6 +53,7 @@ app.use('/api/settlements', settlementRoutes);
 app.use('/api/costs', costRoutes);
 app.use('/api/performance', performanceRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/clinical', clinicalRoutes);
 
 const dist = path.resolve(projectRoot, 'dist');
 if (fs.existsSync(dist)) {

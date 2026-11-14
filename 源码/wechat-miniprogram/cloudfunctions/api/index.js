@@ -31,7 +31,11 @@ var require_db = __commonJS({
       "notifications",
       "deposit_applications",
       "staff_requests",
-      "binding_requests"
+      "binding_requests",
+      "treatment_plans",
+      "treatment_plan_items",
+      "tooth_records",
+      "recalls"
     ];
     async function ensureCollections(names = COLLECTIONS) {
       await Promise.all((names || COLLECTIONS).map(async (name) => {
@@ -159,12 +163,12 @@ var require_seed = __commonJS({
       return d.toISOString().slice(0, 10);
     }
     async function ensureOnly(names) {
-      for (const name of names) {
+      await Promise.all(names.map(async (name) => {
         try {
           await db.createCollection(name);
         } catch (error) {
         }
-      }
+      }));
     }
     async function seedStaffOnly() {
       await ensureOnly(["users"]);
@@ -527,6 +531,57 @@ var require_seed = __commonJS({
       });
       return { seeded: true, clinicId: clinic1._id, patientId: patient1._id, settlementId: sampleSettlement._id };
     }
+    async function seedClinicalOnly(patient2) {
+      if (!patient2 || !patient2._id)
+        return;
+      await ensureOnly(["treatment_plans", "treatment_plan_items", "tooth_records", "recalls"]);
+      if (await findOne("treatment_plans", { patientId: patient2._id }))
+        return;
+      const dentistName = "\u5F20\u660E";
+      const clinicName = patient2.clinicName || "\u5929\u6CB3\u65D7\u8230\u5E97";
+      const [plan1, plan2] = await Promise.all([
+        add("treatment_plans", {
+          planNo: makeNo("PLAN"),
+          patientId: patient2._id,
+          patientName: patient2.name,
+          dentistName,
+          clinicName,
+          title: "\u540E\u7259\u4FEE\u590D\u4E0E\u6D01\u7259\u8BA1\u5212",
+          status: "PRESENTED",
+          notes: "\u5148\u63A7\u5236\u7259\u5468\u708E\u75C7\uFF0C\u518D\u5B8C\u6210\u5145\u586B\u4E0E\u51A0\u4FEE\u590D\u3002",
+          createdAt: /* @__PURE__ */ new Date()
+        }),
+        add("treatment_plans", {
+          planNo: makeNo("PLAN"),
+          patientId: patient2._id,
+          patientName: patient2.name,
+          dentistName,
+          clinicName,
+          title: "\u6839\u7BA1\u6CBB\u7597\u4E0E\u5168\u51A0\u4FEE\u590D",
+          status: "IN_PROGRESS",
+          notes: "\u53F3\u4E0B\u7B2C\u4E00\u78E8\u7259\u6839\u7BA1\u6CBB\u7597\u540E\u8FDB\u884C\u5168\u51A0\u4FDD\u62A4\u3002",
+          createdAt: /* @__PURE__ */ new Date()
+        })
+      ]);
+      const items = [
+        [plan1._id, "\u8D85\u58F0\u6CE2\u6D01\u7259", "", 1, 28e3, "PLANNED", 1],
+        [plan1._id, "\u6811\u8102\u5145\u586B", "16", 1, 38e3, "PLANNED", 2],
+        [plan1._id, "\u5168\u74F7\u7259\u51A0", "26", 1, 28e4, "PLANNED", 3],
+        [plan2._id, "\u6839\u7BA1\u6CBB\u7597", "36", 1, 16e4, "COMPLETED", 1],
+        [plan2._id, "\u5168\u74F7\u7259\u51A0", "36", 1, 28e4, "SCHEDULED", 2]
+      ];
+      await Promise.all(items.map(
+        ([planId, treatmentName, toothNo, quantity, unitPriceCents, status, sequence]) => add("treatment_plan_items", { planId, patientId: patient2._id, treatmentName, toothNo, quantity, unitPriceCents, status, sequence, createdAt: /* @__PURE__ */ new Date() })
+      ));
+      const teeth = [["16", "CARIES"], ["26", "FILLING"], ["36", "ROOT_CANAL"], ["46", "MISSING"], ["11", "HEALTHY"]];
+      await Promise.all([
+        ...teeth.map(
+          ([toothNo, conditionCode]) => add("tooth_records", { patientId: patient2._id, toothNo, conditionCode, surface: "", note: "", createdAt: /* @__PURE__ */ new Date() })
+        ),
+        add("recalls", { patientId: patient2._id, type: "EXAM", dueDate: shanghaiDate(-3), status: "DUE", note: "\u516D\u4E2A\u6708\u5E38\u89C4\u590D\u67E5", createdAt: /* @__PURE__ */ new Date() }),
+        add("recalls", { patientId: patient2._id, type: "CLEANING", dueDate: shanghaiDate(14), status: "DUE", note: "\u6D01\u7259\u4E0E\u7259\u5468\u7EF4\u62A4", createdAt: /* @__PURE__ */ new Date() })
+      ]);
+    }
     module2.exports = {
       seedDemo: seedDemo2,
       seedStaffOnly,
@@ -536,6 +591,7 @@ var require_seed = __commonJS({
       seedPatientsOnly,
       seedDepartmentsOnly,
       seedCatalogOnly,
+      seedClinicalOnly,
       ensureOnly,
       shanghaiDate
     };
@@ -696,7 +752,7 @@ var require_patient = __commonJS({
     var { db, _, getDoc, findOne, add, update, list, ensureCollections } = require_db();
     var { makeNo, cents, yuan } = require_security();
     var { requirePatient } = require_auth();
-    var { seedClinicsOnly, seedClinicDoctors, seedChairs, seedPatientsOnly, seedDepartmentsOnly, seedCatalogOnly } = require_seed();
+    var { seedClinicsOnly, seedClinicDoctors, seedChairs, seedPatientsOnly, seedDepartmentsOnly, seedCatalogOnly, seedClinicalOnly } = require_seed();
     function nowShanghaiParts() {
       const d = new Date(Date.now() + 8 * 36e5);
       return {
@@ -1247,6 +1303,10 @@ exports.main = async (event = {}) => {
     const user = await requireUser(token);
     if (action === "home")
       return ok(await patient.getPatientHome(user));
+    if (action === "clinical")
+      return ok(await patient.getPatientClinical(user));
+    if (action === "acceptTreatmentPlan")
+      return ok(await patient.acceptTreatmentPlan(user, event.planId));
     if (action === "listClinics")
       return ok(await patient.listClinics());
     if (action === "listDepartments")

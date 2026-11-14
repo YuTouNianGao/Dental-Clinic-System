@@ -61,12 +61,15 @@ export const statusText = {
   APPROVED: '已批准', REJECTED: '已驳回', VERIFIED: '已审核', PENDING: '待处理', CONFIRMED: '已确认',
   PROVISIONAL_COMPLETE: '临时完整', PROVISIONAL_INCOMPLETE: '数据不完整', CONFIRMED_COMPLETE: '已确认快照', NO_ACTIVITY: '暂无数据',
   MISSING: '缺失', CONFIRMED_ZERO: '确认零成本', REJECTED_ONLY: '仅驳回', PENDING_COST: '待审核',
-  PATIENT: '患者', CLINIC: '诊所', MEDICAL_SUPPLIES: '医疗用品', OPERATING_EXPENSE: '运营费用'
+  PATIENT: '患者', CLINIC: '诊所', MEDICAL_SUPPLIES: '医疗用品', OPERATING_EXPENSE: '运营费用',
+  PRESENTED: '已沟通', ACCEPTED: '已接受', DECLINED: '已拒绝', PLANNED: '待安排', DISMISSED: '已忽略',
+  DUE: '待安排', HEALTHY: '健康', CARIES: '龋坏', FILLING: '已充填', CROWN: '牙冠',
+  ROOT_CANAL: '根管治疗', IMPLANT: '种植', FRACTURE: '牙折', SENSITIVE: '敏感'
 };
 
 export const statusTone = (value) => {
-  if (['ACTIVE','SCHEDULED','PUBLISHED','APPROVED','VERIFIED','CONFIRMED','COMPLETED','ATTENDED','PROVISIONAL_COMPLETE','CONFIRMED_COMPLETE'].includes(value)) return 'green';
-  if (['CANCELLED','NO_SHOW','VOID','REJECTED','INACTIVE','PROVISIONAL_INCOMPLETE','MISSING','REJECTED_ONLY'].includes(value)) return 'red';
-  if (['DRAFT','PENDING','IN_PROGRESS','RESCHEDULED','PENDING_COST'].includes(value)) return 'amber';
+  if (['ACTIVE','SCHEDULED','PUBLISHED','APPROVED','VERIFIED','CONFIRMED','COMPLETED','ATTENDED','PROVISIONAL_COMPLETE','CONFIRMED_COMPLETE','ACCEPTED','HEALTHY'].includes(value)) return 'green';
+  if (['CANCELLED','NO_SHOW','VOID','REJECTED','INACTIVE','PROVISIONAL_INCOMPLETE','MISSING','REJECTED_ONLY','DECLINED','CARIES','FRACTURE'].includes(value)) return 'red';
+  if (['DRAFT','PENDING','IN_PROGRESS','RESCHEDULED','PENDING_COST','PRESENTED','PLANNED','DUE','SENSITIVE'].includes(value)) return 'amber';
   return 'blue';
 };

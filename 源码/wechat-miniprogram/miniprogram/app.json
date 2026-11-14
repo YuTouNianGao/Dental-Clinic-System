@@ -12,6 +12,7 @@
     "pages/records/records",
     "pages/profile/profile",
     "pages/binding/binding",
+    "pages/clinical/clinical",
     "pages/notifications/notifications"
   ],
   "window": {

@@ -1,7 +1,7 @@
 const { db, _, getDoc, findOne, add, update, list, ensureCollections } = require('./db');
 const { makeNo, cents, yuan } = require('./security');
 const { requirePatient } = require('./auth');
-const { seedClinicsOnly, seedClinicDoctors, seedChairs, seedPatientsOnly, seedDepartmentsOnly, seedCatalogOnly } = require('./seed');
+const { seedClinicsOnly, seedClinicDoctors, seedChairs, seedPatientsOnly, seedDepartmentsOnly, seedCatalogOnly, seedClinicalOnly } = require('./seed');
 
 function nowShanghaiParts() {
   const d = new Date(Date.now() + 8 * 3600000);
@@ -69,6 +69,48 @@ async function getPatientHome(user) {
     notifications,
     visits
   };
+}
+
+async function getPatientClinical(user) {
+  const patientId = requirePatient(user);
+  const patient = await getDoc('patients', patientId);
+  await seedClinicalOnly(patient);
+  const [plans, items, teeth, recalls] = await Promise.all([
+    list('treatment_plans', { patientId }, { orderBy: { field: 'createdAt', direction: 'desc' } }),
+    list('treatment_plan_items', { patientId }),
+    list('tooth_records', { patientId }),
+    list('recalls', { patientId }, { orderBy: { field: 'dueDate', direction: 'asc' } })
+  ]);
+  const mapped = plans.filter((p) => ['PRESENTED','ACCEPTED','IN_PROGRESS','COMPLETED'].includes(p.status)).map((p) => {
+    const own = items.filter((i) => i.planId === p._id).sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+    const totalCents = own.reduce((sum, i) => sum + Number(i.unitPriceCents || 0) * Number(i.quantity || 1), 0);
+    const completed = own.filter((i) => i.status === 'COMPLETED').length;
+    return {
+      id: p._id, planNo: p.planNo, title: p.title, status: p.status, notes: p.notes || '',
+      dentistName: p.dentistName, clinicName: p.clinicName, totalCents, total: yuan(totalCents),
+      itemCount: own.length, completedCount: completed,
+      items: own.map((i) => ({
+        id: i._id, treatmentName: i.treatmentName, toothNo: i.toothNo || '',
+        quantity: Number(i.quantity || 1), unitPriceCents: Number(i.unitPriceCents || 0),
+        amount: yuan(Number(i.unitPriceCents || 0) * Number(i.quantity || 1)), status: i.status, sequence: i.sequence
+      }))
+    };
+  });
+  return {
+    patient: patient ? { id: patient._id, name: patient.name } : null,
+    plans: mapped,
+    teeth: teeth.map((t) => ({ toothNo: t.toothNo, conditionCode: t.conditionCode, surface: t.surface || '', note: t.note || '' })),
+    recalls: recalls.map((r) => ({ id: r._id, type: r.type, dueDate: r.dueDate, status: r.status, note: r.note || '' }))
+  };
+}
+
+async function acceptTreatmentPlan(user, planId) {
+  const patientId = requirePatient(user);
+  const plan = await getDoc('treatment_plans', planId);
+  if (!plan || plan.patientId !== patientId) throw new Error('治疗计划不存在');
+  if (plan.status !== 'PRESENTED' && plan.status !== 'DRAFT') throw new Error('当前计划无需确认');
+  await update('treatment_plans', planId, { status: 'ACCEPTED', acceptedAt: new Date() });
+  return { ok: true };
 }
 
 async function listClinics() {

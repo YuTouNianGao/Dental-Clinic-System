@@ -20,7 +20,7 @@
 - 认证：JWT HttpOnly Cookie + bcrypt 密码哈希
 - 测试：Vitest、Supertest、真实 MySQL 测试库、Puppeteer Core 页面冒烟测试
 
-项目实际使用现有数据库结构：**22 张实体表 + 1 个派生绩效视图**。任务书中的“21 张实体表”与实际 SQL 不一致，代码以仓库现有 SQL 为准，没有删除、重命名或重构现有表。
+项目实际使用现有数据库结构：**34 张实体表 + 1 个派生绩效视图**，其中 22 张为核心业务表，12 张为患者门户与临床扩展表。任务书中的“21 张实体表”与当前实际 SQL 不一致，代码以仓库现有 SQL 为准，没有删除、重命名或重构历史核心表。
 
 ## 目录
 
@@ -48,6 +48,12 @@ docs/requirements-traceability.md  UC001–UC012 追踪表
 
 ```bash
 mysql -h 127.0.0.1 -P 3307 -u root -p < sql/01_schema.sql
+```
+
+已有数据库执行临床模块增量迁移（新增治疗计划、牙位记录、召回表，不删除既有数据）：
+
+```bash
+npm run db:migrate:clinical
 ```
 
 为应用创建独立账号。以下示例密码仅用于本地开发，请自行替换：
@@ -223,6 +229,23 @@ npm run build
 - 数据库增量迁移：`npm run db:migrate`（仅对非 `_test` 库执行一次；已有 `patient_account` 会跳过）。
 - 测试仍使用隔离的 `dental_clinic_test`：`npm test` 会重建测试库，禁止对业务库执行。
 
+## 临床工作区（OpenDental / DentalPin 参考）
+
+参考 [Open Dental Quick Manual](https://www.opendental.com/site/quickmanual.html) 的 Appointments、Chart、Treatment Plan、Recall 模块，以及 [DentalPin Demo](https://demo.dentalpin.com/) 的轻量工作台和患者列表视觉，新增：
+
+- Web 工作台：今日日程、待沟通治疗计划、召回、最近患者、本周快照。
+- Web 日程看板 `/schedule-board`：按牙医分列的时间轴，对应 OpenDental Appointments 的医生列视图。
+- Web 治疗方案 `/treatment-plans`：草稿 → 已沟通 → 已接受 → 进行中 → 完成/拒绝的 pipeline，可逐项添加治疗、牙位、数量与价格。
+- 患者档案新增“临床档案”页：32 牙位 FDI 牙位图、治疗计划进度、复查召回；牙位状况可写回并写审计日志。
+- 召回清单 `/recalls`：逾期、本周与全部召回，可标记完成/忽略。
+- 小程序患者端新增“我的牙齿”页：治疗计划、牙位图、复查提醒，可确认接受待沟通计划。
+
+数据库增量：
+
+- `treatment_plan`、`treatment_plan_item`：治疗计划与计划项目。
+- `tooth_record`：牙位状况（FDI 11–48）。
+- `patient_recall`：检查/洁牙/牙周/正畸召回。
+
 ## 主要 API
 
 | 模块 | 路径 |
@@ -235,6 +258,10 @@ npm run build
 | 牙医/资质 | `GET/POST /api/dentists`、资质子资源、`/api/catalog/qualifications` |
 | 诊所 | `GET/POST /api/clinics`、`PUT /api/clinics/:id` |
 | 治疗与价格 | `/api/catalog/treatments`、价格草稿/批准/驳回 |
+| 临床计划 | `GET/POST /api/clinical/treatment-plans`、计划项目、状态 |
+| 牙位图 | `GET /api/clinical/patients/:id`、`PUT /api/clinical/patients/:id/teeth/:toothNo` |
+| 召回 | `GET/POST /api/clinical/recalls`、状态更新 |
+| 患者临床 | `GET /api/patient/clinical` |
 | 就诊与治疗 | `GET/PUT /api/visits/:id`、治疗追加/作废 |
 | 结算 | `GET /api/settlements`、`POST /api/settlements/visits/:visitId`、`POST /api/settlements/:id/void` |
 | 成本 | `GET/POST /api/costs`、`verify`、`reject` |

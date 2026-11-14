@@ -22,6 +22,9 @@ import Costs from './pages/Costs.jsx';
 import Performance from './pages/Performance.jsx';
 import Records from './pages/Records.jsx';
 import Audit from './pages/Audit.jsx';
+import TreatmentPlans from './pages/TreatmentPlans.jsx';
+import Recalls from './pages/Recalls.jsx';
+import ScheduleBoard from './pages/ScheduleBoard.jsx';
 import PatientHome from './pages/patient/PatientHome.jsx';
 import PatientClinics from './pages/patient/PatientClinics.jsx';
 import PatientBooking from './pages/patient/PatientBooking.jsx';
@@ -74,7 +77,10 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="/patients" element={<Patients />} />
         <Route path="/patients/:id" element={<PatientDetail />} />
+        <Route path="/treatment-plans" element={<TreatmentPlans />} />
+        <Route path="/recalls" element={<Recalls />} />
         <Route path="/appointments" element={<Appointments />} />
+        <Route path="/schedule-board" element={<ScheduleBoard />} />
         <Route path="/schedules" element={<Schedules />} />
         <Route path="/dentists" element={<Dentists />} />
         <Route path="/clinics" element={<Clinics />} />

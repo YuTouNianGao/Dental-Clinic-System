@@ -23,6 +23,7 @@
     </view>
     <view class="card">
       <view class="eyebrow">SERVICES</view>
+      <view class="list-item" bindtap="goClinical"><view class="row"><view>我的牙齿与治疗计划</view><view class="small">查看</view></view></view>
       <view class="list-item" bindtap="goNotifications"><view class="row"><view>站内通知</view><view class="small">查看</view></view></view>
       <view class="list-item" bindtap="goRefunds"><view class="row"><view>退款记录</view><view class="small">查看</view></view></view>
       <view class="list-item" bindtap="goBinding"><view class="row"><view>绑定已有患者档案</view><view class="small">申请</view></view></view>

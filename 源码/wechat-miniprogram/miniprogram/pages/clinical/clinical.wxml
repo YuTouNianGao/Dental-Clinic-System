@@ -1,0 +1,69 @@
+<view class="page clinical-page">
+  <view wx:if="{{loading}}" class="empty">正在读取牙齿档案…</view>
+  <view wx:elif="{{error}}" class="card">
+    <view class="notice">{{error}}</view>
+    <button class="btn secondary" bindtap="load" style="margin-top:16rpx">重试</button>
+  </view>
+  <block wx:else>
+    <view class="hero clinical-hero">
+      <view class="eyebrow">MY DENTAL CARE</view>
+      <view class="title">我的牙齿</view>
+      <view class="subtitle">治疗计划、牙位记录和复查提醒，和诊所保持同一份档案。</view>
+      <view class="hero-stats">
+        <view class="hero-stat"><view class="num">{{activePlans}}</view><view class="label">进行中计划</view></view>
+        <view class="hero-stat"><view class="num">{{completed}}</view><view class="label">已完成项目</view></view>
+        <view class="hero-stat"><view class="num">{{toothCount}}<small>/32</small></view><view class="label">牙位记录</view></view>
+      </view>
+    </view>
+
+    <view class="segmented">
+      <view class="segment {{tab === 'plans' ? 'active' : ''}}" data-tab="plans" bindtap="setTab">治疗计划</view>
+      <view class="segment {{tab === 'teeth' ? 'active' : ''}}" data-tab="teeth" bindtap="setTab">牙位图</view>
+      <view class="segment {{tab === 'recalls' ? 'active' : ''}}" data-tab="recalls" bindtap="setTab">复查提醒</view>
+    </view>
+
+    <block wx:if="{{tab === 'plans'}}">
+      <view wx:if="{{!plans.length}}" class="card"><view class="empty">诊所尚未创建治疗计划。完成检查后，医生会把建议同步到这里。</view></view>
+      <view wx:for="{{plans}}" wx:key="id" class="card plan-card">
+        <view class="row">
+          <view class="plan-head"><view class="plan-badge">{{item.statusLabel}}</view><view class="plan-title">{{item.title}}</view><view class="small">{{item.dentistName}} · {{item.clinicName}} · {{item.planNo}}</view></view>
+          <view class="plan-total">{{item.amountLabel}}</view>
+        </view>
+        <view class="plan-track"><view class="plan-fill" style="width:{{item.progress}}%"></view></view>
+        <view class="row"><view class="small">完成 {{item.completedCount}}/{{item.itemCount}} 项</view><view class="small">{{item.progress}}%</view></view>
+        <view class="plan-items">
+          <view wx:for="{{item.items}}" wx:for-item="row" wx:key="id" class="plan-line">
+            <view><view class="plan-line-name">{{row.treatmentName}}</view><view class="small">{{row.toothNo ? '牙位 ' + row.toothNo : '全口'}} · {{row.quantity}} 次</view></view>
+            <view class="plan-line-right"><view class="small">{{row.amountLabel}}</view><view class="plan-state">{{row.statusLabel}}</view></view>
+          </view>
+        </view>
+        <view wx:if="{{item.notes}}" class="plan-note">{{item.notes}}</view>
+        <button wx:if="{{item.status === 'PRESENTED'}}" class="btn" style="margin-top:18rpx" data-id="{{item.id}}" bindtap="accept">确认接受计划</button>
+      </view>
+    </block>
+
+    <block wx:if="{{tab === 'teeth'}}">
+      <view class="card">
+        <view class="row"><view><view class="eyebrow">TOOTH CHART</view><view class="section-title">牙位记录</view></view><view class="small">FDI 牙位</view></view>
+        <view class="tooth-block">
+          <view class="tooth-label">上颌</view>
+          <view class="tooth-row"><view wx:for="{{upper}}" wx:key="no" class="tooth-chip tooth-{{item.cls}}"><view class="tooth-no">{{item.no}}</view><view class="tooth-dot"></view></view></view>
+          <view class="tooth-label">下颌</view>
+          <view class="tooth-row"><view wx:for="{{lower}}" wx:key="no" class="tooth-chip tooth-{{item.cls}}"><view class="tooth-no">{{item.no}}</view><view class="tooth-dot"></view></view></view>
+        </view>
+        <view class="tooth-legend"><view wx:for="{{conditionLegend}}" wx:key="key" class="legend-item"><view class="legend-dot tooth-{{item.cls}}"></view>{{item.label}}</view></view>
+      </view>
+    </block>
+
+    <block wx:if="{{tab === 'recalls'}}">
+      <view wx:if="{{!recalls.length}}" class="card"><view class="empty">没有待处理的复查提醒。</view></view>
+      <view wx:for="{{recalls}}" wx:key="id" class="card recall-card">
+        <view class="recall-mark {{item.status === 'DUE' ? 'due' : ''}}"></view>
+        <view class="recall-main"><view class="recall-title">{{item.type === 'CLEANING' ? '洁牙与牙周维护' : item.type === 'EXAM' ? '常规口腔检查' : '专科复查'}}</view><view class="small">建议日期 {{item.dueDate}} · {{item.status === 'DUE' ? '待安排' : item.status}}</view><view wx:if="{{item.note}}" class="small">{{item.note}}</view></view>
+        <button class="btn small secondary" bindtap="goBooking">去预约</button>
+      </view>
+    </block>
+
+    <view class="card clinical-help"><view><view class="eyebrow">NEED HELP?</view><view style="font-weight:700;margin:5rpx 0">对计划有疑问？</view><view class="small">可以先在站内通知里联系诊所，或直接预约复诊沟通。</view></view><button class="btn ghost small" bindtap="goMessages">查看通知</button></view>
+  </block>
+</view>

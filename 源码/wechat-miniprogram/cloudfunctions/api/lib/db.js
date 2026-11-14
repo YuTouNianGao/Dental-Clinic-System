@@ -6,7 +6,8 @@ const _ = db.command;
 const COLLECTIONS = [
   'meta', 'clinics', 'departments', 'dentists', 'chairs', 'schedules', 'patients', 'treatments', 'users', 'sessions',
   'appointments', 'appointment_changes', 'payment_orders', 'payment_transactions', 'refunds',
-  'visits', 'settlements', 'notifications', 'deposit_applications', 'staff_requests', 'binding_requests'
+  'visits', 'settlements', 'notifications', 'deposit_applications', 'staff_requests', 'binding_requests',
+  'treatment_plans', 'treatment_plan_items', 'tooth_records', 'recalls'
 ];
 
 async function ensureCollections(names = COLLECTIONS) {

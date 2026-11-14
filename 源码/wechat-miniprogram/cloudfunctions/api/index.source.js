@@ -20,6 +20,8 @@ exports.main = async (event = {}) => {
     const user = await requireUser(token);
 
     if (action === 'home') return ok(await patient.getPatientHome(user));
+    if (action === 'clinical') return ok(await patient.getPatientClinical(user));
+    if (action === 'acceptTreatmentPlan') return ok(await patient.acceptTreatmentPlan(user, event.planId));
     if (action === 'listClinics') return ok(await patient.listClinics());
     if (action === 'listDepartments') return ok(await patient.listDepartments());
     if (action === 'listDentists') return ok(await patient.listDentists(event.clinicId, event.departmentId));

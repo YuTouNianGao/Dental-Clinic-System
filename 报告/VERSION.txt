@@ -1,8 +1,8 @@
 REPORT_STATUS=FINAL
-GENERATED_DATE=2026-10-28
+GENERATED_DATE=2026-11-14
 SOURCE_FILE=报告/1602240208信管2402刘鑫.pdf
-PAGES=102
-FIGURES=42
-TABLES=47
-SHA256=ABB31FA9E42C3C32017B11EF26F3D70F7E9FF77CBC7D471811A6262E40380EC6
-NOTE=Patient-only WeChat mini program; staff operations moved back to the Web management console.
+PAGES=116
+FIGURES=45
+TABLES=64
+SHA256=A83ED9FBE024D16E9E4759C35D9833A343162A1165CEAC2C107BF0849E82783A
+NOTE=Aligned with current implementation: Web clinical workspace (treatment plans, tooth chart, recalls, schedule board, patient directory) and patient-only mini program 1.2.0.

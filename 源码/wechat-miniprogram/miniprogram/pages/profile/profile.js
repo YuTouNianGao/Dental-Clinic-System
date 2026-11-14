@@ -35,6 +35,7 @@ Page({
     } catch (error) { wx.showToast({ title: error.message, icon: 'none' }); }
     finally { this.setData({ saving: false }); }
   },
+  goClinical() { wx.navigateTo({ url: '/pages/clinical/clinical' }); },
   goNotifications() { wx.navigateTo({ url: '/pages/notifications/notifications' }); },
   goRefunds() { wx.navigateTo({ url: '/pages/refunds/refunds' }); },
   goBinding() { wx.navigateTo({ url: '/pages/binding/binding' }); },

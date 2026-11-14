@@ -7,9 +7,9 @@ function shanghaiDate(offsetDays = 0) {
 }
 
 async function ensureOnly(names) {
-  for (const name of names) {
+  await Promise.all(names.map(async (name) => {
     try { await db.createCollection(name); } catch (error) {}
-  }
+  }));
 }
 
 async function seedStaffOnly() {
@@ -268,7 +268,45 @@ async function seedDemo() {
   return { seeded: true, clinicId: clinic1._id, patientId: patient1._id, settlementId: sampleSettlement._id };
 }
 
+async function seedClinicalOnly(patient) {
+  if (!patient || !patient._id) return;
+  await ensureOnly(['treatment_plans', 'treatment_plan_items', 'tooth_records', 'recalls']);
+  if (await findOne('treatment_plans', { patientId: patient._id })) return;
+  const dentistName = '张明';
+  const clinicName = patient.clinicName || '天河旗舰店';
+  const [plan1, plan2] = await Promise.all([
+    add('treatment_plans', {
+      planNo: makeNo('PLAN'), patientId: patient._id, patientName: patient.name,
+      dentistName, clinicName, title: '后牙修复与洁牙计划', status: 'PRESENTED',
+      notes: '先控制牙周炎症，再完成充填与冠修复。', createdAt: new Date()
+    }),
+    add('treatment_plans', {
+      planNo: makeNo('PLAN'), patientId: patient._id, patientName: patient.name,
+      dentistName, clinicName, title: '根管治疗与全冠修复', status: 'IN_PROGRESS',
+      notes: '右下第一磨牙根管治疗后进行全冠保护。', createdAt: new Date()
+    })
+  ]);
+  const items = [
+    [plan1._id, '超声波洁牙', '', 1, 28000, 'PLANNED', 1],
+    [plan1._id, '树脂充填', '16', 1, 38000, 'PLANNED', 2],
+    [plan1._id, '全瓷牙冠', '26', 1, 280000, 'PLANNED', 3],
+    [plan2._id, '根管治疗', '36', 1, 160000, 'COMPLETED', 1],
+    [plan2._id, '全瓷牙冠', '36', 1, 280000, 'SCHEDULED', 2]
+  ];
+  await Promise.all(items.map(([planId, treatmentName, toothNo, quantity, unitPriceCents, status, sequence]) =>
+    add('treatment_plan_items', { planId, patientId: patient._id, treatmentName, toothNo, quantity, unitPriceCents, status, sequence, createdAt: new Date() })
+  ));
+  const teeth = [['16','CARIES'],['26','FILLING'],['36','ROOT_CANAL'],['46','MISSING'],['11','HEALTHY']];
+  await Promise.all([
+    ...teeth.map(([toothNo, conditionCode]) =>
+      add('tooth_records', { patientId: patient._id, toothNo, conditionCode, surface: '', note: '', createdAt: new Date() })
+    ),
+    add('recalls', { patientId: patient._id, type: 'EXAM', dueDate: shanghaiDate(-3), status: 'DUE', note: '六个月常规复查', createdAt: new Date() }),
+    add('recalls', { patientId: patient._id, type: 'CLEANING', dueDate: shanghaiDate(14), status: 'DUE', note: '洁牙与牙周维护', createdAt: new Date() })
+  ]);
+}
+
 module.exports = {
   seedDemo, seedStaffOnly, seedClinicsOnly, seedClinicDoctors, seedChairs,
-  seedPatientsOnly, seedDepartmentsOnly, seedCatalogOnly, ensureOnly, shanghaiDate
+  seedPatientsOnly, seedDepartmentsOnly, seedCatalogOnly, seedClinicalOnly, ensureOnly, shanghaiDate
 };

@@ -49,6 +49,7 @@ Page({
     };
   },
   goBooking() { wx.navigateTo({ url: '/pages/booking/booking' }); },
+  goClinical() { wx.navigateTo({ url: '/pages/clinical/clinical' }); },
   goAppointments() { wx.switchTab({ url: '/pages/appointments/appointments' }); },
   goPayments() { wx.navigateTo({ url: '/pages/payments/payments' }); },
   goRecords() { wx.switchTab({ url: '/pages/records/records' }); },

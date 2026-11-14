@@ -30,6 +30,12 @@
       <view class="quick-item" bindtap="goNotifications"><view class="quick-symbol">信</view><view class="quick-label">通知</view></view>
     </view>
 
+    <view class="card clinical-entry" bindtap="goClinical">
+      <view class="clinical-entry-mark">牙</view>
+      <view class="clinical-entry-main"><view class="eyebrow">MY DENTAL CARE</view><view style="font-weight:700;font-size:29rpx">我的牙齿与治疗计划</view><view class="small">治疗计划、牙位记录、复查提醒</view></view>
+      <view class="clinical-entry-arrow">›</view>
+    </view>
+
     <view class="section-head"><view class="section-title">下一次就诊</view><view class="section-link" bindtap="goAppointments">全部预约</view></view>
     <view wx:if="{{!home.nextAppointment}}" class="card"><view class="empty">还没有预约。选一个合适的时段，给自己留一点照顾牙齿的时间。</view><button class="btn secondary" bindtap="goBooking" style="margin-top:8rpx">去预约</button></view>
     <view wx:if="{{home.nextAppointment}}" class="card next-card" data-id="{{home.nextAppointment.id}}" bindtap="goDetail">

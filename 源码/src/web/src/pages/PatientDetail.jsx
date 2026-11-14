@@ -4,12 +4,14 @@ import { AlertTriangle, ArrowLeft, Pencil, Plus, ShieldAlert, Trash2 } from 'luc
 import { api, dateOnly, dateTime, money } from '../lib/api.js';
 import { useApp } from '../components/AppContext.jsx';
 import { Badge, Button, Card, Empty, ErrorState, Field, FormGrid, Loading, Modal, PageHeader, Tabs, Table } from '../components/ui.jsx';
+import PatientClinical from '../components/PatientClinical.jsx';
 
 export default function PatientDetail(){
   const {id}=useParams(); const {user,notify}=useApp();
-  const [data,setData]=useState(null); const [error,setError]=useState(null); const [tab,setTab]=useState('visits');
+  const [data,setData]=useState(null); const [error,setError]=useState(null); const [tab,setTab]=useState('clinical');
   const [editOpen,setEditOpen]=useState(false); const [edit,setEdit]=useState({}); const [allergyOpen,setAllergyOpen]=useState(false); const [allergy,setAllergy]=useState({allergyName:'',note:'',confirmationStatus:'PENDING'});
   const canWrite=['FRONT_DESK','CLINIC_MANAGER','HQ_MANAGER'].includes(user.role);
+  const canClinical=['DENTIST','CLINIC_MANAGER','HQ_MANAGER'].includes(user.role);
   const load=()=>{setError(null);api('/patients/'+id).then(setData).catch(setError)};
   useEffect(load,[id]);
   if(error) return <ErrorState error={error} onRetry={load}/>; if(!data) return <Loading/>;
@@ -26,7 +28,8 @@ export default function PatientDetail(){
       <Card><div className="card-head"><div><h2>过敏信息</h2><p>接诊前必须核实，不以折叠方式隐藏</p></div>{canWrite&&<Button size="sm" variant="ghost" onClick={()=>setAllergyOpen(true)}><Plus size={14}/>添加</Button>}</div>{data.allergies.length?<div className="allergy-list">{data.allergies.map(a=><div key={a.allergy_id} className={a.confirmation_status==='PENDING'?'pending':''}><div className="allergy-icon">{a.confirmation_status==='PENDING'?<AlertTriangle size={18}/>:<ShieldAlert size={18}/>}</div><div><strong>{a.allergy_name}</strong><span>{a.note||'无备注'}</span></div><Badge value={a.confirmation_status==='CONFIRMED'?'CONFIRMED':'PENDING'}>{a.confirmation_status==='CONFIRMED'?'已确认':'待确认'}</Badge>{canWrite&&a.confirmation_status==='PENDING'&&<Button size="xs" variant="ghost" onClick={()=>confirmAllergy(a)}>核实</Button>}{canWrite&&<button className="icon-btn danger" onClick={()=>removeAllergy(a.allergy_id)}><Trash2 size={15}/></button>}</div>)}</div>:<Empty title="暂无过敏记录" description="如患者明确无过敏史，也建议记录并确认。"/>}</Card>
       <Card><div className="card-head"><div><h2>档案概况</h2><p>跨诊所共享主数据</p></div><Badge value={p.status}/></div><dl className="detail-list"><div><dt>患者编号</dt><dd>{p.patient_no}</dd></div><div><dt>账单地址</dt><dd>{p.billing_address}</dd></div><div><dt>紧急联系人</dt><dd>{p.emergency_contact_name} · {p.emergency_contact_phone}</dd></div><div><dt>关联诊所</dt><dd>{data.clinics.length?data.clinics.map(c=>c.clinic_no).join('、'):'尚未建立就诊关系'}</dd></div><div><dt>累计预约</dt><dd>{data.appointments.length} 次</dd></div><div><dt>累计就诊</dt><dd>{data.visits.length} 次</dd></div></dl></Card>
     </div>
-    <Card className="section-card"><Tabs value={tab} onChange={setTab} tabs={[{value:'visits',label:'就诊记录',count:data.visits.length},{value:'appointments',label:'预约记录',count:data.appointments.length},{value:'settlements',label:'结算历史',count:data.settlements.length}]}/>
+    <Card className="section-card"><Tabs value={tab} onChange={setTab} tabs={[{value:'clinical',label:'临床档案'},{value:'visits',label:'就诊记录',count:data.visits.length},{value:'appointments',label:'预约记录',count:data.appointments.length},{value:'settlements',label:'结算历史',count:data.settlements.length}]}/>
+      {tab==='clinical'&&<div className="clinical-tab"><PatientClinical patientId={Number(id)} canWrite={canClinical}/></div>}
       {tab==='visits'&&(data.visits.length?<Table><thead><tr><th>就诊号</th><th>时间</th><th>牙医</th><th>诊所</th><th>状态</th><th></th></tr></thead><tbody>{data.visits.map(v=><tr key={v.visit_id}><td>{v.visit_no}</td><td>{dateTime(v.visit_datetime)}</td><td>{v.dentist_name}</td><td>{v.clinic_no}</td><td><Badge value={v.status}/></td><td><Link className="text-link" to={'/visits/'+v.visit_id}>查看</Link></td></tr>)}</tbody></Table>:<Empty title="暂无就诊记录"/>)}
       {tab==='appointments'&&(data.appointments.length?<Table><thead><tr><th>预约号</th><th>时间</th><th>牙医</th><th>诊所</th><th>状态</th></tr></thead><tbody>{data.appointments.map(a=><tr key={a.appointment_id}><td>{a.appointment_no}</td><td>{dateTime(a.scheduled_start_at)}</td><td>{a.dentist_name}</td><td>{a.clinic_no}</td><td><Badge value={a.status}/></td></tr>)}</tbody></Table>:<Empty title="暂无预约记录"/>)}
       {tab==='settlements'&&(data.settlements.length?<Table><thead><tr><th>结算单号</th><th>就诊号</th><th>结算时间</th><th>金额</th><th>状态</th><th></th></tr></thead><tbody>{data.settlements.map(s=><tr key={s.settlement_id}><td>{s.settlement_no}</td><td>{s.visit_no}</td><td>{dateTime(s.settlement_date)}</td><td>{money(s.total_amount)}</td><td><Badge value={s.status}/></td><td><Link className="text-link" to={'/settlements/'+s.settlement_id}>查看</Link></td></tr>)}</tbody></Table>:<Empty title="暂无结算单"/>)}
