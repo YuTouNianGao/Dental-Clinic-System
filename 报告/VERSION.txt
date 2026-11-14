@@ -4,5 +4,5 @@ SOURCE_FILE=docs/final-report/1602240208信管2402刘鑫.pdf
 PAGES=117
 FIGURES=45
 TABLES=64
-SHA256=FF2069E65D435FC3D8C9BE7C8247EBAE894FE7974285BC3E79B2EFD9AD120896
-NOTE=Aligned with current implementation; includes the 1.2.0 patient mini program QR in chapter 8.
+SHA256=E385A1DB4FA0BEB9F66AB5695CA18C38683FFBAC362322A52F085C7A6219FDA7
+NOTE=Aligned with current implementation; includes the fixed 1.2.1 mini program QR in chapter 8.

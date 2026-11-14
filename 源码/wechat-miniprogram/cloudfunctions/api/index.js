@@ -845,6 +845,61 @@ var require_patient = __commonJS({
         visits
       };
     }
+    async function getPatientClinical(user) {
+      const patientId = requirePatient(user);
+      const patient2 = await getDoc("patients", patientId);
+      await seedClinicalOnly(patient2);
+      const [plans, items, teeth, recalls] = await Promise.all([
+        list("treatment_plans", { patientId }, { orderBy: { field: "createdAt", direction: "desc" } }),
+        list("treatment_plan_items", { patientId }),
+        list("tooth_records", { patientId }),
+        list("recalls", { patientId }, { orderBy: { field: "dueDate", direction: "asc" } })
+      ]);
+      const mapped = plans.filter((p) => ["PRESENTED", "ACCEPTED", "IN_PROGRESS", "COMPLETED"].includes(p.status)).map((p) => {
+        const own = items.filter((i) => i.planId === p._id).sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+        const totalCents = own.reduce((sum, i) => sum + Number(i.unitPriceCents || 0) * Number(i.quantity || 1), 0);
+        const completed = own.filter((i) => i.status === "COMPLETED").length;
+        return {
+          id: p._id,
+          planNo: p.planNo,
+          title: p.title,
+          status: p.status,
+          notes: p.notes || "",
+          dentistName: p.dentistName,
+          clinicName: p.clinicName,
+          totalCents,
+          total: yuan(totalCents),
+          itemCount: own.length,
+          completedCount: completed,
+          items: own.map((i) => ({
+            id: i._id,
+            treatmentName: i.treatmentName,
+            toothNo: i.toothNo || "",
+            quantity: Number(i.quantity || 1),
+            unitPriceCents: Number(i.unitPriceCents || 0),
+            amount: yuan(Number(i.unitPriceCents || 0) * Number(i.quantity || 1)),
+            status: i.status,
+            sequence: i.sequence
+          }))
+        };
+      });
+      return {
+        patient: patient2 ? { id: patient2._id, name: patient2.name } : null,
+        plans: mapped,
+        teeth: teeth.map((t) => ({ toothNo: t.toothNo, conditionCode: t.conditionCode, surface: t.surface || "", note: t.note || "" })),
+        recalls: recalls.map((r) => ({ id: r._id, type: r.type, dueDate: r.dueDate, status: r.status, note: r.note || "" }))
+      };
+    }
+    async function acceptTreatmentPlan(user, planId) {
+      const patientId = requirePatient(user);
+      const plan = await getDoc("treatment_plans", planId);
+      if (!plan || plan.patientId !== patientId)
+        throw new Error("\u6CBB\u7597\u8BA1\u5212\u4E0D\u5B58\u5728");
+      if (plan.status !== "PRESENTED" && plan.status !== "DRAFT")
+        throw new Error("\u5F53\u524D\u8BA1\u5212\u65E0\u9700\u786E\u8BA4");
+      await update("treatment_plans", planId, { status: "ACCEPTED", acceptedAt: /* @__PURE__ */ new Date() });
+      return { ok: true };
+    }
     async function listClinics() {
       await seedClinicsOnly();
       const rows = await list("clinics", { status: "ACTIVE" }, { orderBy: { field: "clinicNo", direction: "asc" } });
@@ -1265,6 +1320,8 @@ var require_patient = __commonJS({
       updateProfile,
       getBinding,
       requestBinding,
+      getPatientClinical,
+      acceptTreatmentPlan,
       fmtOrder,
       fmtAppointment
     };

@@ -441,5 +441,5 @@ module.exports = {
   listAppointments, getAppointment, payOrder, cancelAppointment,
   listOrders, getOrder, listVisits, listSettlements, listRefunds,
   listNotifications, readNotification, updateProfile, getBinding, requestBinding,
-  fmtOrder, fmtAppointment
+  getPatientClinical, acceptTreatmentPlan, fmtOrder, fmtAppointment
 };

@@ -4,6 +4,16 @@
   <view wx:elif="{{error}}" class="card"><view class="notice">{{error}}</view><button class="btn secondary" bindtap="load">重试</button></view>
   <block wx:else>
     <view class="card">
+      <view class="row"><view><view class="eyebrow">PAYMENTS</view><view class="section-title">支付记录</view></view><view class="small">预约金 / 诊后余额</view></view>
+      <view wx:if="{{!orders.length}}" class="empty">暂无支付记录。挂号支付后，预约金订单会显示在这里。</view>
+      <view wx:for="{{orders}}" wx:key="id" class="list-item">
+        <view class="row">
+          <view><view style="font-weight:700">{{item.typeLabel}} {{item.amountLabel}}</view><view class="small">{{item.no}} · {{item.timeLabel}}</view></view>
+          <view class="badge {{item.status === 'PAID' ? '' : 'amber'}}">{{item.statusLabel}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="card">
       <view class="eyebrow">VISITS</view>
       <view wx:if="{{!visits.length}}" class="empty">暂无就诊记录</view>
       <view wx:for="{{visits}}" wx:key="_id" class="list-item"><view class="row"><view><view style="font-weight:700">{{item.visitDate}} · {{item.dentistName}}</view><view class="small">{{item.clinicName}} · {{item.problem}}</view><view class="small">{{item.treatmentName}} · {{item.amountLabel}}</view></view><view class="badge">{{item.statusLabel}}</view></view></view>
