@@ -66,7 +66,7 @@ export default function CloudData() {
     finally { setUpdating(''); }
   };
   return <div>
-    <PageHeader eyebrow="CLOUDBASE / MINI PROGRAM" title="小程序云数据" description="读取小程序云数据，并把 Web 端医生排班同步到小程序；员工可在这里核对两端数据。" actions={<><Button variant="secondary" onClick={syncSchedules} disabled={syncing}><CalendarDays size={15} />{syncing ? '同步中…' : '同步排班到小程序'}</Button><Button onClick={() => load(true)} disabled={loading}><RefreshCw size={15} />刷新云数据</Button></>} />
+    <PageHeader eyebrow="CLOUDBASE / MINI PROGRAM" title="小程序云数据" description="读取小程序云数据，并把排班、预约状态、收款和退款写回小程序；员工可在这里核对两端数据。" actions={<><Button variant="secondary" onClick={syncSchedules} disabled={syncing}><CalendarDays size={15} />{syncing ? '同步中…' : '同步排班到小程序'}</Button><Button onClick={() => load(true)} disabled={loading}><RefreshCw size={15} />刷新云数据</Button></>} />
     {loading && !data ? <Loading /> : error ? <ErrorState error={error} onRetry={() => load(true)} /> : data && <>
       <div className="cloud-kpis">
         <Card><Users size={18} /><span>小程序患者</span><strong>{data.counts.patients}</strong></Card>
@@ -74,7 +74,7 @@ export default function CloudData() {
         <Card><WalletCards size={18} /><span>支付订单</span><strong>{data.counts.orders}</strong></Card>
         <Card><ClipboardList size={18} /><span>治疗计划</span><strong>{data.counts.plans}</strong></Card>
       </div>
-      <div className="info-strip"><Cloud size={15} />数据来源：微信云数据库 · 最近拉取 {dateTime(data.pulledAt)} {data.cached ? '（缓存）' : ''}。患者/预约/支付为云 → Web 只读；医生排班可通过右上角按钮从 Web 同步到小程序。</div>
+      <div className="info-strip"><Cloud size={15} />数据来源：微信云数据库 · 最近拉取 {dateTime(data.pulledAt)} {data.cached ? '（缓存）' : ''}。患者资料为云 → Web 只读；排班、预约状态、收款和退款可从 Web 写回小程序。</div>
       <div className="finance-strip">
         <div><span>已收款</span><strong>{money(Number(data.finance?.collectedCents || 0) / 100)}</strong><small>{data.counts.transactions} 笔流水</small></div>
         <div><span>已退款</span><strong className="red">{money(Number(data.finance?.refundedCents || 0) / 100)}</strong><small>{data.counts.refunds} 笔退款</small></div>
