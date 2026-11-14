@@ -25,6 +25,7 @@ import Audit from './pages/Audit.jsx';
 import TreatmentPlans from './pages/TreatmentPlans.jsx';
 import Recalls from './pages/Recalls.jsx';
 import ScheduleBoard from './pages/ScheduleBoard.jsx';
+import CloudData from './pages/CloudData.jsx';
 import PatientHome from './pages/patient/PatientHome.jsx';
 import PatientClinics from './pages/patient/PatientClinics.jsx';
 import PatientBooking from './pages/patient/PatientBooking.jsx';
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="/patients/:id" element={<PatientDetail />} />
         <Route path="/treatment-plans" element={<TreatmentPlans />} />
         <Route path="/recalls" element={<Recalls />} />
+        <Route path="/cloud-data" element={<CloudData />} />
         <Route path="/appointments" element={<Appointments />} />
         <Route path="/schedule-board" element={<ScheduleBoard />} />
         <Route path="/schedules" element={<Schedules />} />

@@ -25,6 +25,7 @@ import costRoutes from './routes/costs.js';
 import performanceRoutes from './routes/performance.js';
 import auditRoutes from './routes/audit.js';
 import clinicalRoutes from './routes/clinical.js';
+import cloudDataRoutes from './routes/cloudData.js';
 
 export const app = express();
 app.disable('x-powered-by');
@@ -54,6 +55,7 @@ app.use('/api/costs', costRoutes);
 app.use('/api/performance', performanceRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/clinical', clinicalRoutes);
+app.use('/api/cloud-data', cloudDataRoutes);
 
 const dist = path.resolve(projectRoot, 'dist');
 if (fs.existsSync(dist)) {

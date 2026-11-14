@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, CalendarDays, CalendarClock, Stethoscope, Building2,
   BadgeDollarSign, ClipboardPlus, ReceiptText, WalletCards, ChartNoAxesCombined,
   SearchCheck, ScrollText, LogOut, Menu, X, ShieldCheck, UserRoundCheck, RotateCcw,
-  AlertTriangle, ClipboardList, BellRing, CalendarRange
+  AlertTriangle, ClipboardList, BellRing, CalendarRange, Cloud
 } from 'lucide-react';
 import { useApp } from './AppContext.jsx';
 
@@ -50,6 +50,7 @@ const navGroups = [
       { to: '/treatments', label: '治疗项目', icon: BadgeDollarSign },
       { to: '/patient-bindings', label: '患者绑定审核', icon: UserRoundCheck, roles: ['FRONT_DESK','CLINIC_MANAGER','HQ_MANAGER'] },
       { to: '/records', label: '历史查询', icon: SearchCheck },
+      { to: '/cloud-data', label: '小程序云数据', icon: Cloud, roles: ['FRONT_DESK','DENTIST','CLINIC_MANAGER','HQ_MANAGER'] },
       { to: '/audit', label: '审计日志', icon: ScrollText, roles: ['HQ_MANAGER'] }
     ]
   }
