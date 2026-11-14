@@ -29,4 +29,22 @@ router.patch('/appointments/:id/status', asyncHandler(async (req, res) => {
   res.json(result);
 }));
 
+router.post('/orders/:id/collect', asyncHandler(async (req, res) => {
+  if (!cloudConfigured()) return res.status(503).json({ error: { code: 'CLOUD_NOT_CONFIGURED', message: '云开发同步未配置' } });
+  const result = await cloudAction('collectPayment', { id: req.params.id });
+  if (!result?.ok) throw new Error(result?.message || '收款失败');
+  res.json(result);
+}));
+
+router.post('/orders/:id/refund', asyncHandler(async (req, res) => {
+  if (!cloudConfigured()) return res.status(503).json({ error: { code: 'CLOUD_NOT_CONFIGURED', message: '云开发同步未配置' } });
+  const result = await cloudAction('refundOrder', {
+    id: req.params.id,
+    amountCents: req.body.amountCents,
+    reason: req.body.reason
+  });
+  if (!result?.ok) throw new Error(result?.message || '退款失败');
+  res.json(result);
+}));
+
 export default router;

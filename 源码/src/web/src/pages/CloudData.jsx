@@ -6,7 +6,7 @@ import { useApp } from '../components/AppContext.jsx';
 
 const STATUS = {
   PENDING_PAYMENT: '待支付', SCHEDULED: '已确认', ATTENDED: '已到诊', CANCELLED: '已取消',
-  PENDING: '待支付', PAID: '已支付', PARTIALLY_PAID: '部分支付', REFUNDING: '退款中',
+  PENDING: '待支付', PAID: '已支付', PARTIALLY_PAID: '部分支付', PARTIALLY_REFUNDED: '部分退款', REFUNDING: '退款中',
   REFUNDED: '已退款', EXPIRED: '已过期', PRESENTED: '待确认', ACCEPTED: '已接受', IN_PROGRESS: '进行中', COMPLETED: '已完成'
 };
 
@@ -36,6 +36,26 @@ export default function CloudData() {
     } catch (e) { notify(e.message, 'error'); }
     finally { setSyncing(false); }
   };
+  const collectOrder = async (order) => {
+    setUpdating(order.id);
+    try {
+      await api(`/cloud-data/orders/${order.id}/collect`, { method: 'POST' });
+      notify('小程序收款已登记');
+      await load(true);
+    } catch (e) { notify(e.message, 'error'); }
+    finally { setUpdating(''); }
+  };
+  const refundOrder = async (order) => {
+    const reason = window.prompt('退款原因', 'Web 员工退款');
+    if (reason === null) return;
+    setUpdating(order.id);
+    try {
+      await api(`/cloud-data/orders/${order.id}/refund`, { method: 'POST', body: { reason } });
+      notify('小程序退款已登记');
+      await load(true);
+    } catch (e) { notify(e.message, 'error'); }
+    finally { setUpdating(''); }
+  };
   const updateAppointment = async (appointment, status) => {
     setUpdating(appointment.id);
     try {
@@ -55,6 +75,11 @@ export default function CloudData() {
         <Card><ClipboardList size={18} /><span>治疗计划</span><strong>{data.counts.plans}</strong></Card>
       </div>
       <div className="info-strip"><Cloud size={15} />数据来源：微信云数据库 · 最近拉取 {dateTime(data.pulledAt)} {data.cached ? '（缓存）' : ''}。患者/预约/支付为云 → Web 只读；医生排班可通过右上角按钮从 Web 同步到小程序。</div>
+      <div className="finance-strip">
+        <div><span>已收款</span><strong>{money(Number(data.finance?.collectedCents || 0) / 100)}</strong><small>{data.counts.transactions} 笔流水</small></div>
+        <div><span>已退款</span><strong className="red">{money(Number(data.finance?.refundedCents || 0) / 100)}</strong><small>{data.counts.refunds} 笔退款</small></div>
+        <div><span>待收余额</span><strong>{money(Number(data.finance?.outstandingCents || 0) / 100)}</strong><small>未支付/部分支付订单</small></div>
+      </div>
       <div className="cloud-grid">
         <Card>
           <div className="card-head"><div><h2>小程序患者</h2><p>按注册时间倒序</p></div><Badge tone="blue">{data.patients.length}</Badge></div>
@@ -66,7 +91,7 @@ export default function CloudData() {
         </Card>
         <Card>
           <div className="card-head"><div><h2>小程序支付</h2><p>预约金 / 诊后余额</p></div><Badge tone="blue">{data.orders.length}</Badge></div>
-          {!data.orders.length ? <Empty title="暂无小程序支付" /> : <div className="cloud-list">{data.orders.slice(0, 12).map((o) => <div className="cloud-row" key={o.id}><div><strong>{o.patientName || '患者'} · {money(Number(o.amountCents || 0) / 100)}</strong><small>{o.type === 'APPOINTMENT_DEPOSIT' ? '预约金' : '诊后余额'} · {o.no}</small></div><Badge value={o.status}>{STATUS[o.status] || o.status}</Badge></div>)}</div>}
+          {!data.orders.length ? <Empty title="暂无小程序支付" /> : <div className="cloud-list">{data.orders.slice(0, 12).map((o) => <div className="cloud-row" key={o.id}><div><strong>{o.patientName || '患者'} · {money(Number(o.amountCents || 0) / 100)}</strong><small>{o.type === 'APPOINTMENT_DEPOSIT' ? '预约金' : '诊后余额'} · {o.no} · 已收 {money(Number(o.paidCents || 0) / 100)}</small></div><Badge value={o.status}>{STATUS[o.status] || o.status}</Badge><div className="cloud-actions">{!['PAID', 'REFUNDED'].includes(o.status) && <button disabled={updating === o.id} onClick={() => collectOrder(o)}>收款</button>}{Number(o.paidCents || 0) > Number(o.refundedCents || 0) && <button disabled={updating === o.id} onClick={() => refundOrder(o)}>退款</button>}</div></div>)}</div>}
         </Card>
         <Card>
           <div className="card-head"><div><h2>小程序治疗计划</h2><p>云数据库中的计划摘要</p></div><Badge tone="blue">{data.plans.length}</Badge></div>

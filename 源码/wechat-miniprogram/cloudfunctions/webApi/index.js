@@ -5,7 +5,7 @@ const db = cloud.database();
 const SYNC_KEY = process.env.ADC_SYNC_KEY || 'adc-sync-2026';
 const COLLECTIONS = [
   'clinics', 'departments', 'dentists', 'chairs', 'schedules', 'patients', 'treatments',
-  'appointments', 'payment_orders', 'visits', 'settlements',
+  'appointments', 'payment_orders', 'payment_transactions', 'refunds', 'visits', 'settlements',
   'treatment_plans', 'treatment_plan_items',
   'tooth_records', 'recalls'
 ];
@@ -135,6 +135,61 @@ exports.main = async (event = {}) => {
       if (!doc.data) return reply(404, { ok: false, message: 'appointment not found' });
       await db.collection('appointments').doc(body.id).update({ data: { status: body.status, updatedAt: new Date() } });
       return reply(200, { ok: true, data: { id: body.id, status: body.status } });
+    }
+    if (action === 'collectPayment') {
+      const id = body.id || body.orderId;
+      const doc = await db.collection('payment_orders').doc(id).get();
+      if (!doc.data) return reply(404, { ok: false, message: 'order not found' });
+      const order = doc.data;
+      const total = Number(order.amountCents || 0);
+      const paid = Number(order.paidCents || 0);
+      if (paid >= total) return reply(400, { ok: false, message: '订单已收款' });
+      const amount = total - paid;
+      await db.collection('payment_orders').doc(id).update({
+        data: { paidCents: total, status: 'PAID', paidAt: new Date(), updatedAt: new Date() }
+      });
+      await db.collection('payment_transactions').add({
+        data: {
+          orderId: id, orderNo: order.no || order.orderNo, patientId: order.patientId,
+          patientName: order.patientName, amountCents: amount, type: 'PAYMENT',
+          method: 'CASH', status: 'SUCCESS', operator: 'WEB_STAFF', createdAt: new Date()
+        }
+      });
+      return reply(200, { ok: true, data: { id, amountCents: amount, status: 'PAID' } });
+    }
+    if (action === 'refundOrder') {
+      const id = body.id || body.orderId;
+      const doc = await db.collection('payment_orders').doc(id).get();
+      if (!doc.data) return reply(404, { ok: false, message: 'order not found' });
+      const order = doc.data;
+      const paid = Number(order.paidCents || 0);
+      const refunded = Number(order.refundedCents || 0);
+      const remaining = Math.max(0, paid - refunded);
+      const amount = Math.min(remaining, Number(body.amountCents || remaining));
+      if (amount <= 0) return reply(400, { ok: false, message: '没有可退金额' });
+      await db.collection('refunds').add({
+        data: {
+          orderId: id, orderNo: order.no || order.orderNo, patientId: order.patientId,
+          patientName: order.patientName, amountCents: amount, reason: body.reason || 'Web 员工退款',
+          status: 'COMPLETED', requestedBy: 'WEB_STAFF', createdAt: new Date()
+        }
+      });
+      const nextRefunded = refunded + amount;
+      await db.collection('payment_orders').doc(id).update({
+        data: {
+          refundedCents: nextRefunded,
+          status: nextRefunded >= paid ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
+          updatedAt: new Date()
+        }
+      });
+      await db.collection('payment_transactions').add({
+        data: {
+          orderId: id, orderNo: order.no || order.orderNo, patientId: order.patientId,
+          patientName: order.patientName, amountCents: amount, type: 'REFUND',
+          method: 'CASH', status: 'SUCCESS', operator: 'WEB_STAFF', createdAt: new Date()
+        }
+      });
+      return reply(200, { ok: true, data: { id, amountCents: amount, status: nextRefunded >= paid ? 'REFUNDED' : 'PARTIALLY_REFUNDED' } });
     }
     if (action === 'counts') {
       const data = {};
