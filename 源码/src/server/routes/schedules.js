@@ -6,8 +6,14 @@ import { allow, assertClinicAccess, scopedClinicSql } from '../auth.js';
 import { asyncHandler, badRequest, conflict, notFound } from '../errors.js';
 import { asId, dayBounds, shanghaiToday, toUtcSql } from '../utils.js';
 import { assertNoScheduleConflict, assertQualificationsVerified, getScheduleImpact, setScheduleQualifications } from '../services/scheduleService.js';
+import { syncSchedulesToCloud } from '../cloudSync.js';
 
 const router = Router();
+
+function syncAfterWrite() {
+  syncSchedulesToCloud().catch((error) => console.warn('schedule cloud sync failed:', error.message));
+}
+
 const scheduleSchema = z.object({
   dentistId: z.coerce.number().int().positive(),
   clinicId: z.coerce.number().int().positive(),
@@ -64,6 +70,7 @@ router.post('/', allow('HQ_MANAGER','CLINIC_MANAGER'), asyncHandler(async (req, 
     });
     return result.insertId;
   });
+  syncAfterWrite();
   res.status(201).json({ scheduleId });
 }));
 
@@ -96,6 +103,7 @@ router.put('/:id', allow('HQ_MANAGER','CLINIC_MANAGER'), asyncHandler(async (req
       details: { affectedAppointmentCount: impact.length }, ipAddress: req.ip
     });
   });
+  syncAfterWrite();
   res.json({ ok: true });
 }));
 
@@ -113,6 +121,7 @@ router.post('/:id/publish', allow('HQ_MANAGER','CLINIC_MANAGER'), asyncHandler(a
     await conn.execute("UPDATE dentist_schedule SET status='PUBLISHED' WHERE schedule_id=?", [id]);
     await writeAudit(conn, req.user.userId, 'UPDATE_SCHEDULE', 'dentist_schedule', id, { beforeStatus: 'DRAFT', afterStatus: 'PUBLISHED', reason: '发布排班', relatedEntityId: existing.clinic_id, ipAddress: req.ip });
   });
+  syncAfterWrite();
   res.json({ ok: true });
 }));
 
@@ -130,6 +139,7 @@ router.post('/:id/cancel', allow('HQ_MANAGER','CLINIC_MANAGER'), asyncHandler(as
       beforeStatus: existing.status, afterStatus: 'CANCELLED', reason: req.body?.reason || '取消排班', ipAddress: req.ip
     });
   });
+  syncAfterWrite();
   res.json({ ok: true });
 }));
 

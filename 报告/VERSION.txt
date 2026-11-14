@@ -4,5 +4,5 @@ SOURCE_FILE=docs/final-report/1602240208信管2402刘鑫.pdf
 PAGES=117
 FIGURES=45
 TABLES=64
-SHA256=F41028FF74EF15C838E97B2AC30FF9E0D2C64CAC252BB362938A0C1E63CBFB9A
-NOTE=Aligned with current implementation; includes 1.2.1 mini QR and Web cloud-data read bridge.
+SHA256=D42FF964BD8B1B1FA8194CEC313D5046E1595F24CB2E08116CDC6D0F100ADC9B
+NOTE=Aligned with current implementation; includes 1.2.1 QR, Web cloud-data page, and Web-to-cloud schedule sync.

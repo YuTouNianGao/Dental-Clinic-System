@@ -8,10 +8,10 @@ export function cloudConfigured() {
   return Boolean(process.env.CLOUD_API_URL && process.env.CLOUD_SYNC_KEY);
 }
 
-export async function cloudAction(action) {
+export async function cloudAction(action, data = {}) {
   if (!cloudConfigured()) throw new Error('CloudBase bridge is not configured');
   const url = new URL(process.env.CLOUD_API_URL);
-  const body = Buffer.from(JSON.stringify({ action }));
+  const body = Buffer.from(JSON.stringify({ action, ...data }));
   const payload = await new Promise((resolve, reject) => {
     const req = https.request({
       hostname: url.hostname,
