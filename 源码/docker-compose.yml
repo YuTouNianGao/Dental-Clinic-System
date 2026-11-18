@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: AdcRoot@2026
+      MYSQL_DATABASE: dental_clinic_db
+      MYSQL_USER: dental_app
+      MYSQL_PASSWORD: AdcApp@2026
+      TZ: Asia/Shanghai
+    ports:
+      - "3307:3306"
+    volumes:
+      - adc_mysql_data:/var/lib/mysql
+      - ./sql/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -pAdcRoot@2026 --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      JWT_SECRET: local-demo-secret-change-before-public-deploy
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: dental_app
+      DB_PASSWORD: AdcApp@2026
+      DB_DATABASE: dental_clinic_db
+      DEFAULT_DENTIST_PASSWORD: Dental@2026
+      DEMO_PASSWORD: Dental@2026
+      APP_TIMEZONE: Asia/Shanghai
+      TZ: Asia/Shanghai
+      CLOUD_API_URL: ""
+      CLOUD_SYNC_KEY: ""
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm run db:seed && npm start"
+    restart: unless-stopped
+
+volumes:
+  adc_mysql_data:

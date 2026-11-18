@@ -4,6 +4,62 @@
 
 > 本项目仅供 ADC 总部及旗下诊所内部授权人员使用，不是患者自助平台。
 
+## 评阅老师如何查看网页
+
+GitHub 仓库本身只能查看代码、报告和截图，**不能直接运行 React + Express + MySQL 网页**。要看到可操作网页，需要把项目运行起来；推荐使用 Docker，一条命令即可。
+
+### 方式一：Docker 一键运行（推荐）
+
+前提：电脑安装 Docker Desktop。
+
+```bash
+git clone https://github.com/YuTouNianGao/Dental-Clinic-System.git
+cd Dental-Clinic-System/源码
+docker compose up --build
+```
+
+等待 MySQL 初始化和种子数据写入完成，浏览器打开：
+
+```text
+http://localhost:3000
+```
+
+演示账号：
+
+```text
+hqadmin / Dental@2026
+```
+
+停止：
+
+```bash
+docker compose down
+```
+
+如果要清空数据库重新初始化：
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+### 方式二：本机 Node + MySQL 运行
+
+需要 Node.js 16.20+ 和 MySQL 8.0，按下方“本机启动”章节执行：
+
+```bash
+npm install
+npm run db:seed
+npm run build
+npm start
+```
+
+### 方式三：在线演示地址
+
+如果项目已部署到云服务器，直接把公网地址发给老师即可；GitHub Pages 不能运行本项目，因为本项目需要 Express 后端和 MySQL。
+
+> 只查看界面截图：README 下方“界面预览”和报告第 6 章已经包含主要页面截图；交互功能需要按方式一或方式二运行。
+
 ## 界面预览
 
 | 登录 | 经营概览 |
