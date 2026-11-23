@@ -3,7 +3,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const { ok, fail } = require('./lib/db');
 const { seedDemo } = require('./lib/seed');
 const {
-  bootstrap, registerPatient, loginPatient, logoutStaff, requireUser
+  bootstrap, registerPatient, loginPatient, demoLogin, logoutStaff, requireUser
 } = require('./lib/auth');
 const patient = require('./lib/patient');
 
@@ -14,6 +14,7 @@ exports.main = async (event = {}) => {
     if (action === 'bootstrap') return ok(await bootstrap(token));
     if (action === 'registerPatient') return ok(await registerPatient(event.data || event));
     if (action === 'loginPatient') return ok(await loginPatient(event.account, event.password));
+    if (action === 'demoLogin') return ok(await demoLogin());
     if (action === 'logoutStaff') { await logoutStaff(token); return ok({ ok: true }); }
     if (action === 'initDemo') return ok(await seedDemo());
 

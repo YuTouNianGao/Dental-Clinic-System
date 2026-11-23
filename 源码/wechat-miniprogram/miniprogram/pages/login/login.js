@@ -9,6 +9,15 @@ Page({
   },
   input(event) { this.setData({ [event.currentTarget.dataset.field]: event.detail.value }); },
   goRegister() { wx.navigateTo({ url: '/pages/register/register' }); },
+  async demoLogin() {
+    this.setData({ loading: true, error: '' });
+    try {
+      const result = await call('demoLogin');
+      app.setPatientSession(result.user, result.patient, result.token);
+      wx.switchTab({ url: '/pages/home/home' });
+    } catch (error) { this.setData({ error: error.message || '体验账号登录失败' }); }
+    finally { this.setData({ loading: false }); }
+  },
   async patientLogin() {
     if (!this.data.account.trim() || !this.data.password) return wx.showToast({ title: '请输入患者账号和密码', icon: 'none' });
     this.setData({ loading: true, error: '' });

@@ -4,5 +4,5 @@ SOURCE_FILE=docs/final-report/1602240208信管2402刘鑫.pdf
 PAGES=117
 FIGURES=45
 TABLES=64
-SHA256=2FCDA44E608C6C7CA087B4ED0D9DA5EEDE32216B0231ED2D1124842DE0D283A8
-NOTE=Aligned with current implementation; 1.2.1 QR, cloud data, schedule/appointment/finance sync.
+SHA256=413E10A27EEEBDDF879D0C8B33DED18FDA01C3600BFCE862C3107CD345149852
+NOTE=Aligned with current implementation; 1.2.2 demo-login QR, cloud data/schedule/appointment/finance sync.

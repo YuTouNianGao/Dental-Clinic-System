@@ -604,6 +604,7 @@ var require_auth = __commonJS({
     var { db, ensureCollections } = require_db();
     var { findOne, getDoc, add } = require_db();
     var { randomToken, verifyPassword, hashPassword, makeNo } = require_security();
+    var { seedPatientsOnly } = require_seed();
     var CORE = ["users", "patients", "sessions"];
     function publicUser(user) {
       if (!user)
@@ -708,6 +709,31 @@ var require_auth = __commonJS({
       const patient2 = user.patientId ? await getDoc("patients", user.patientId) : null;
       return { user: publicUser(user), patient: patient2, token };
     }
+    async function demoLogin2() {
+      await ensureCollections(CORE);
+      let patient2 = await findOne("patients", { phone: "13910001001" });
+      if (!patient2) {
+        await seedPatientsOnly();
+        patient2 = await findOne("patients", { phone: "13910001001" });
+      }
+      if (!patient2)
+        throw new Error("\u6F14\u793A\u60A3\u8005\u521D\u59CB\u5316\u5931\u8D25");
+      let user = await findOne("users", { patientId: patient2._id, staff: false });
+      if (!user) {
+        user = await add("users", {
+          patientUsername: "DEMO001",
+          passwordHash: hashPassword("Dental@2026"),
+          role: "PATIENT",
+          displayName: patient2.name,
+          patientId: patient2._id,
+          status: "ACTIVE",
+          staff: false,
+          createdAt: /* @__PURE__ */ new Date()
+        });
+      }
+      const token = await createSession(user);
+      return { user: publicUser(user), patient: patient2, token, demo: true };
+    }
     async function logout(token) {
       if (!token)
         return;
@@ -738,6 +764,7 @@ var require_auth = __commonJS({
       bootstrap: bootstrap2,
       registerPatient: registerPatient2,
       loginPatient: loginPatient2,
+      demoLogin: demoLogin2,
       logout,
       logoutStaff: logout,
       requireUser: requireUser2,
@@ -1337,6 +1364,7 @@ var {
   bootstrap,
   registerPatient,
   loginPatient,
+  demoLogin,
   logoutStaff,
   requireUser
 } = require_auth();
@@ -1351,6 +1379,8 @@ exports.main = async (event = {}) => {
       return ok(await registerPatient(event.data || event));
     if (action === "loginPatient")
       return ok(await loginPatient(event.account, event.password));
+    if (action === "demoLogin")
+      return ok(await demoLogin());
     if (action === "logoutStaff") {
       await logoutStaff(token);
       return ok({ ok: true });

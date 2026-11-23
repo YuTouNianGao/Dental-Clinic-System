@@ -1,6 +1,7 @@
 const { db, ensureCollections } = require('./db');
 const { findOne, getDoc, add } = require('./db');
 const { randomToken, verifyPassword, hashPassword, makeNo } = require('./security');
+const { seedPatientsOnly } = require('./seed');
 
 const CORE = ['users', 'patients', 'sessions'];
 
@@ -95,6 +96,31 @@ async function loginPatient(account, password) {
   return { user: publicUser(user), patient, token };
 }
 
+async function demoLogin() {
+  await ensureCollections(CORE);
+  let patient = await findOne('patients', { phone: '13910001001' });
+  if (!patient) {
+    await seedPatientsOnly();
+    patient = await findOne('patients', { phone: '13910001001' });
+  }
+  if (!patient) throw new Error('演示患者初始化失败');
+  let user = await findOne('users', { patientId: patient._id, staff: false });
+  if (!user) {
+    user = await add('users', {
+      patientUsername: 'DEMO001',
+      passwordHash: hashPassword('Dental@2026'),
+      role: 'PATIENT',
+      displayName: patient.name,
+      patientId: patient._id,
+      status: 'ACTIVE',
+      staff: false,
+      createdAt: new Date()
+    });
+  }
+  const token = await createSession(user);
+  return { user: publicUser(user), patient, token, demo: true };
+}
+
 async function logout(token) {
   if (!token) return;
   const session = await findOne('sessions', { token });
@@ -130,6 +156,6 @@ function requireStaff(user, roles) {
 }
 
 module.exports = {
-  publicUser, getSessionUser, bootstrap, registerPatient, loginPatient,
+  publicUser, getSessionUser, bootstrap, registerPatient, loginPatient, demoLogin,
   logout, logoutStaff: logout, requireUser, requirePatient
 };

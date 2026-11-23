@@ -16,6 +16,8 @@
     <view class="field"><view class="field-label">患者账号</view><input class="input" value="{{account}}" data-field="account" bindinput="input" placeholder="例如：P12345678" /></view>
     <view class="field"><view class="field-label">密码</view><input class="input" password value="{{password}}" data-field="password" bindinput="input" placeholder="请输入密码" /></view>
     <button class="btn" loading="{{loading}}" bindtap="patientLogin">登录患者端</button>
+    <button class="btn secondary" style="margin-top:12rpx" bindtap="demoLogin">评审体验：一键进入演示账号</button>
+    <view class="form-hint" style="text-align:center">无需注册；也可使用体验账号 DEMO001 / Dental@2026</view>
     <button class="btn ghost" style="margin-top:12rpx" bindtap="goRegister">还没有账号？注册患者账号</button>
     <view class="login-feature-row">
       <view class="login-feature"><view class="quick-symbol">约</view><view>预约挂号</view></view>
